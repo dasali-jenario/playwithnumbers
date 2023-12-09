@@ -8,13 +8,24 @@
         body, input, button, select {
             font-family: Arial, sans-serif;
         }
+.game-container {
+    display: flex;
+    flex-direction: row; /* Align children side by side */
+    justify-content: center;
+    align-items: start;
+    flex-wrap: wrap;
+    margin: 10px;
+}
 
-        .game-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin: 10px;
-        }
+.game-play-area, .words-played {
+    margin: 10px;
+}
+
+@media (max-width: 600px) {
+    .game-container {
+        flex-direction: column; /* Stack children on smaller screens */
+    }
+}
 
         .grid {
             display: grid;
