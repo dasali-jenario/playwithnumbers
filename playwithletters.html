@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boggle Game</title>
+    <style>
+        .game-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            position: relative; /* For overlay positioning */
+        }
+        .grid {
+            display: grid;
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+        .grid-cell {
+            border: 1px solid black;
+            padding: 20px;
+            text-align: center;
+            font-size: 24px;
+            transition: background-color 0.3s;
+        }
+        .used {
+            background-color: yellow;
+        }
+        .special-word {
+            color: purple;
+        }
+        .words-played, .social-sharing, .difficulty-selector {
+            margin: 20px;
+        }
+        input, button, select {
+            margin: 10px 0;
+        }
+
+        /* Overlay Styles */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent */
+            z-index: 10;
+        }
+        #errorOverlay p {
+            color: red;
+            font-size: 2em;
+            text-align: center;
+        }
+        #endGameOverlay .endGameContent {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        @media (max-width: 600px) {
+            .game-container {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="game-container">
+        <div>
+            <div class="difficulty-selector">
+                <label for="difficulty">Difficulty:</label>
+                <select id="difficulty" onchange="changeDifficulty()">
+                    <option value="easy">Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
+                </select>
+            </div>
+            <div class="grid"></div>
+            <input type="text" id="wordInput" placeholder="Enter word">
+            <button onclick="submitWord()">Submit Word</button>
+            <button onclick="reshuffle()">Reshuffle</button>
+            <div>Score: <span id="score">0</span></div>
+            <div>Time left: <span id="timeLeft">180</span> seconds</div>
+            <button onclick="shareOnTwitter()">Share on Twitter</button>
+        </div>
+        <div class="words-played">
+            <h3>Words Played:</h3>
+            <ul id="playedWordsList"></ul>
+        </div>
+
+        <!-- Error Overlay -->
+        <div id="errorOverlay" class="overlay">
+            <p id="errorMessage"></p>
+        </div>
+
+        <!-- End Game Overlay -->
+        <div id="endGameOverlay" class="overlay">
+            <div class="endGameContent">
+                <p id="finalScoreMessage"></p>
+                <button onclick="shareOnTwitter()">Share on Twitter</button>
+                <button onclick="reshuffle()">Reshuffle</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ... JavaScript code (as provided in the previous message) ...
+    </script>
+</body>
+</html>
