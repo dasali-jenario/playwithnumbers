@@ -8,6 +8,104 @@
         body, input, button, select {
             font-family: Arial, sans-serif;
         }
+
+        .game-container {
+            display: flex;
+            flex-direction: row; /* Align children side by side */
+            justify-content: center;
+            align-items: start;
+            flex-wrap: wrap;
+            margin: 10px;
+        }
+
+        .game-play-area, .words-played {
+            margin: 10px;
+        }
+
+        .grid {
+            display: grid;
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+
+        .grid-cell {
+            border: 1px solid #9400D3; /* Dark purple grid lines */
+            padding: 20px;
+            text-align: center;
+            font-size: 24px;
+            transition: background-color 0.3s;
+        }
+
+        .used {
+            background-color: yellow;
+        }
+
+        .special-word {
+            color: purple;
+        }
+
+        .difficulty-selector, .words-played, .social-sharing, .message-area {
+            margin: 10px;
+            text-align: center;
+        }
+
+        .message-area p {
+            color: red;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            .game-container {
+                flex-direction: column; /* Stack children on smaller screens */
+            }
+
+            .grid {
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            .grid-cell {
+                padding: 10px;
+            }
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="game-container">
+        <div>
+            <div class="difficulty-selector">
+                <label for="difficulty">Difficulty:</label>
+                <select id="difficulty" onchange="changeDifficulty()">
+                    <option value="easy">Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
+                </select>
+            </div>
+
+            <div class="message-area">
+                <p id="gameMessage"></p>
+            </div>
+
+            <div class="grid"></div>
+
+            <input type="text" id="wordInput" placeholder="Enter word">
+            <button onclick="submitWord()">Submit Word</button>
+            <button onclick="reshuffle()">Reshuffle</button>
+
+            <div>Score: <span id="score">0</span></div>
+            <div>Time left: <span id="timeLeft">180</span> seconds</div>
+            <button onclick="shareOnTwitter()">Share on Twitter</button>
+        </div>
+        <div class="words-played">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boggle Game</title>
+    <style>
+        body, input, button, select {
+            font-family: Arial, sans-serif;
+        }
 .game-container {
     display: flex;
     flex-direction: row; /* Align children side by side */
