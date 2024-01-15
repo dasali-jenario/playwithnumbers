@@ -1,0 +1,38 @@
+/* styles.css */
+
+body, input, button, select {
+    font-family: Arial, sans-serif;
+}
+
+.game-container {
+    display: flex;
+    justify-content: space-between;
+    margin: 0 auto;
+    max-width: 800px;
+    padding: 20px;
+}
+
+@media (max-width: 600px) {
+    .game-container {
+        flex-direction: column;
+    }
+}
+
+.game-play-area, .words-played {
+    margin: 20px;
+}
+
+.grid {
+    display: grid;
+    gap: 5px;
+    grid-template-columns: repeat(5, 1fr);
+    margin-bottom: 20px;
+}
+
+.grid-cell {
+    background-color: #f8f8f8;
+    border: 1px solid #ddd;
+    padding: 20px;
+    text-align: center;
+    transition: background-color 0.3s;
+}

@@ -4,6 +4,44 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Boggle Game</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="game-container">
+        <div>
+            <div class="difficulty-selector">
+                <label for="difficulty">Difficulty:</label>
+                <select id="difficulty" onchange="changeDifficulty()">
+                    <option value="easy">Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
+                </select>
+            </div>
+
+            <div class="message-area">
+                <p id="gameMessage"></p>
+            </div>
+
+            <div class="grid"></div>
+
+            <input type="text" id="wordInput" placeholder="Enter word">
+            <button onclick="submitWord()">Submit Word</button>
+            <button onclick="reshuffle()">Reshuffle</button>
+
+            <div>Score: <span id="score">0</span></div>
+            <div>Time left: <span id="timeLeft">180</span> seconds</div>
+            <button onclick="shareOnTwitter()">Share on Twitter</button>
+        </div>
+    </div>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boggle Game</title>
     <style>
         body, input, button, select {
             font-family: Arial, sans-serif;
@@ -98,7 +136,9 @@
             <button onclick="shareOnTwitter()">Share on Twitter</button>
         </div>
         <div class="words-played">
-<head>
+</body>
+</html>
+<!-- END: be15d9bcejpp -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Boggle Game</title>
