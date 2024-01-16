@@ -53,13 +53,17 @@ function submitWord() {
     
     // Clear the word input field
     document.getElementById('wordInput').value = '';
-    
+
     // Check the word
     var isValid = checkWord(wordInput);
 
     // If the word is valid, update the score
     if (isValid) {
     updateScore();
+
+       // Clear the error message
+       var errorMessageElement = document.getElementById('error-message');
+       errorMessageElement.innerText = '';
 }
 }
 
