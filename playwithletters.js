@@ -42,19 +42,6 @@ function changeDifficulty() {
 }
     // Update the grid size in the game state
     gameState.gridSize = gridSize;
-    
-    // Example implementation: Changing the time limit based on difficulty
-    var timeLimit;
-    if (difficulty === 'easy') {
-        timeLimit = 60;
-    } else if (difficulty === 'medium') {
-        timeLimit = 45;
-    } else if (difficulty === 'hard') {
-        timeLimit = 30;
-    }
-    
-    // Update the time limit in the game state
-    gameState.timeLimit = timeLimit;
 }
 
 // Function to submit a word
@@ -155,10 +142,6 @@ function displayErrorMessage(message) {
 }
 
 function generateGrid() {
-    // Add a random letter to the cell
-    var randomLetter = letters.charAt(Math.floor(Math.random() * letters.length));
-    cell.textContent = randomLetter;
-    
     // Get the grid container
     var gridContainer = document.getElementById('grid');
 
