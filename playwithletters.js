@@ -1,3 +1,7 @@
+window.onload = function() {
+    generateGrid();
+};
+
 // Function to change the difficulty of the game
 function changeDifficulty() {
     var difficulty = document.getElementById('difficulty').value;  
@@ -129,8 +133,8 @@ function generateGrid() {
     // Get the grid container
     var gridContainer = document.getElementById('grid');
 
-    // Define the size of the grid
-    var gridSize = 5;
+    // Use the grid size from the game state
+    var gridSize = gameState.gridSize;
 
     // Define the letters that can be used in the grid
     var letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
