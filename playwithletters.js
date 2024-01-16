@@ -124,3 +124,32 @@ function displayErrorMessage(message) {
     var errorMessageElement = document.getElementById('error-message');
     errorMessageElement.innerText = message;
 }
+
+function generateGrid() {
+    // Get the grid container
+    var gridContainer = document.getElementById('grid');
+
+    // Define the size of the grid
+    var gridSize = 5;
+
+    // Define the letters that can be used in the grid
+    var letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+    // Generate the grid
+    for (var i = 0; i < gridSize; i++) {
+        for (var j = 0; j < gridSize; j++) {
+            // Create a new grid cell
+            var cell = document.createElement('div');
+
+            // Add a random letter to the cell
+            var randomLetter = letters.charAt(Math.floor(Math.random() * letters.length));
+            cell.textContent = randomLetter;
+
+            // Add the cell to the grid container
+            gridContainer.appendChild(cell);
+        }
+
+        // Add a line break after each row
+        gridContainer.appendChild(document.createElement('br'));
+    }
+}
