@@ -54,8 +54,13 @@ function submitWord() {
     // Clear the word input field
     document.getElementById('wordInput').value = '';
     
-    // Update the score display
+    // Check the word
+    var isValid = checkWord(wordInput);
+
+    // If the word is valid, update the score
+    if (isValid) {
     updateScore();
+}
 }
 
 // Function to update the score display
@@ -73,16 +78,32 @@ function reshuffle() {
     
     // Clear the existing grid
     gridElement.innerHTML = '';
-    
-    // Generate a new grid of letters
-    var letters = generateLetters(gameState.gridSize);
-    
-    // Populate the grid with the new letters
-    for (var i = 0; i < letters.length; i++) {
-        var letterElement = document.createElement('div');
-        letterElement.classList.add('letter');
-        letterElement.innerText = letters[i];
-        gridElement.appendChild(letterElement);
+
+    // Define the letters that can be used in the grid
+    var letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+    // Generate the grid
+    gameState.letters = []; // Reset the gameState letters
+    for (var i = 0; i < gameState.gridSize; i++) {
+        var row = [];
+        for (var j = 0; j < gameState.gridSize; j++) {
+            // Create a new grid cell
+            var cell = document.createElement('div');
+
+            // Add a random letter to the cell
+            var randomLetter = letters.charAt(Math.floor(Math.random() * letters.length));
+            cell.textContent = randomLetter;
+
+            // Add the cell to the grid container
+            gridElement.appendChild(cell);
+
+            // Add the letter to the gameState
+            row.push(randomLetter);
+        }
+        gameState.letters.push(row);
+
+        // Add a line break after each row
+        gridElement.appendChild(document.createElement('br'));
     }
 }
 
@@ -114,6 +135,15 @@ function checkWord(word) {
         headers: {
             'x-rapidapi-key': '8a31b0a430msh805f0073a1340c5p18e2a3jsn35cae4f0c64c',
             'x-rapidapi-host': 'wordsapiv1.p.rapidapi.com'
+        // Check if the word is valid
+        var isValid = false;
+        if (/* condition indicating the word is valid */) {
+        isValid = true;
+    }
+}
+
+return isValid;
+        
         }
     })
     .then(response => response.json())
