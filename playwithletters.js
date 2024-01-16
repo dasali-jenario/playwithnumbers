@@ -127,18 +127,15 @@ function checkWord(word) {
     }
 
     function updateGameState(word) {
-        // Implement the logic to update the game state
-        // This could involve adding the word to a list of valid words, updating the score, etc.
-        // Example:
-        // validWords.push(word);
-        // updateScore();
+        validWords.push(word);
+        updateScore();
+    }
+
     }
 
     function displayErrorMessage(message) {
-        // Implement the logic to display an error message to the user
-        // Example:
-        // var errorMessageElement = document.getElementById('error-message');
-        // errorMessageElement.innerText = message;
+        var errorMessageElement = document.getElementById('error-message');
+        errorMessageElement.innerText = message;
     }
     .catch(err => {
         console.error(err);
