@@ -47,9 +47,6 @@ function updateScore() {
     var newScore = currentScore + 1;
     scoreElement.innerText = newScore;
 }
-    // Implement the logic to check the submitted word and update the game state
-    // This could involve checking if the word is valid, updating the score, etc.
-}
 
 // Function to reshuffle the grid
 function reshuffle() {    
@@ -92,6 +89,7 @@ function shareOnTwitter() {
     var tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweet)}`;
     window.open(tweetUrl, '_blank');
 }
+
 function checkWord(word) {
     fetch(`https://wordsapiv1.p.rapidapi.com/words/${word}`, {
         method: 'GET',
@@ -101,37 +99,28 @@ function checkWord(word) {
         }
     })
     .then(response => response.json())
+    .then(data => {
+        if (data.word) {
+            // The word exists, update the game state
+            // This could involve adding the word to a list of valid words, updating the score, etc.
+            updateGameState(word);
+            console.log(`The word "${word}" is valid.`);
+        } else {
+            // The word does not exist, display an error message
+            displayErrorMessage(`The word "${word}" is not valid.`);
         }
-        .then(response => response.json())
-        .then(data => {
-            if (data.word) {
-                // The word exists, update the game state
-                // This could involve adding the word to a list of valid words, updating the score, etc.
-                updateGameState(word);
-                console.log(`The word "${word}" is valid.`);
-            } else {
-                // The word does not exist, display an error message
-                displayErrorMessage(`The word "${word}" is not valid.`);
-            }
-        })
-        .catch(err => {
-            console.error(err);
-        });
-    }
-
-    function updateGameState(word) {
-        validWords.push(word);
-        updateScore();
-    }
-
-    }
-
-    function displayErrorMessage(message) {
-        var errorMessageElement = document.getElementById('error-message');
-        errorMessageElement.innerText = message;
-    }
+    })
     .catch(err => {
         console.error(err);
     });
 }
-// You can add more functions as needed
+
+function updateGameState(word) {
+    validWords.push(word);
+    updateScore();
+}
+
+function displayErrorMessage(message) {
+    var errorMessageElement = document.getElementById('error-message');
+    errorMessageElement.innerText = message;
+}
