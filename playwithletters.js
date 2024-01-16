@@ -1,3 +1,9 @@
+var validWords = [];
+var gameState = {
+    gridSize: 0, 
+    timeLimit: 0
+};
+
 window.onload = function() {
     generateGrid();
 };
@@ -6,6 +12,9 @@ window.onload = function() {
 function changeDifficulty() {
     var difficulty = document.getElementById('difficulty').value;  
     // Example implementation: Changing the grid size based on difficulty
+    <select id="difficulty" onchange="changeDifficulty()">
+    <!-- Option elements -->
+</select>
     var gridSize;
     if (difficulty === 'easy') {
         gridSize = 4;
@@ -130,6 +139,10 @@ function displayErrorMessage(message) {
 }
 
 function generateGrid() {
+    // Add a random letter to the cell
+    var randomLetter = letters.charAt(Math.floor(Math.random() * letters.length));
+    cell.textContent = randomLetter;
+    
     // Get the grid container
     var gridContainer = document.getElementById('grid');
 
