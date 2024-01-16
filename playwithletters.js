@@ -12,9 +12,6 @@ window.onload = function() {
 function changeDifficulty() {
     var difficulty = document.getElementById('difficulty').value;  
     // Example implementation: Changing the grid size based on difficulty
-    <select id="difficulty" onchange="changeDifficulty()">
-    <!-- Option elements -->
-</select>
     var gridSize;
     if (difficulty === 'easy') {
         gridSize = 4;
@@ -22,6 +19,9 @@ function changeDifficulty() {
         gridSize = 5;
     } else if (difficulty === 'hard') {
         gridSize = 6;
+       // Generate a new grid based on the new difficulty
+       generateGrid();
+    }
     }
     
     // Update the grid size in the game state
