@@ -19,11 +19,27 @@ function changeDifficulty() {
         gridSize = 5;
     } else if (difficulty === 'hard') {
         gridSize = 6;
-       // Generate a new grid based on the new difficulty
-       generateGrid();
-    }
     }
     
+    // Update the grid size in the game state
+    gameState.gridSize = gridSize;
+    
+    // Example implementation: Changing the time limit based on difficulty
+    var timeLimit;
+    if (difficulty === 'easy') {
+        timeLimit = 60;
+    } else if (difficulty === 'medium') {
+        timeLimit = 45;
+    } else if (difficulty === 'hard') {
+        timeLimit = 30;
+    }
+    
+    // Update the time limit in the game state
+    gameState.timeLimit = timeLimit;
+
+    // Generate a new grid based on the new difficulty
+    generateGrid();
+}
     // Update the grid size in the game state
     gameState.gridSize = gridSize;
     
