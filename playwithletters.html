@@ -210,6 +210,227 @@
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
+// <body>
+    <div class="game-container">
+        <div>
+            <div class="difficulty-selector">
+                <label for="difficulty">Difficulty:</label>
+                <select id="difficulty" onchange="changeDifficulty()">
+                    <option value="easy">Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
+                </select>
+            </div>
+
+            <div class="message-area">
+                <p id="gameMessage"></p>
+            </div>
+
+            <div class="grid"></div>
+
+            <input type="text" id="wordInput" placeholder="Enter word">
+            <button onclick="submitWord()">Submit Word</button>
+            <button onclick="reshuffle()">Reshuffle</button>
+
+            <div>Score: <span id="score">0</span></div>
+            <div>Time left: <span id="timeLeft">180</span> seconds</div>
+            <button onclick="shareOnTwitter()">Share on Twitter</button>
+        </div>
+        <div class="words-played">
+            <h3>Words Played:</h3>
+            <ul id="playedWordsList"></ul>
+        </div>
+    </div>
+// begin of Java script part 
+    
+    <script>
+const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const vowels = "AEIOU";
+const specialWords = ["CAT", "KITTY", "LOVE", "BOGGLE", "SUPER", "DUPER"];
+let gridSize = 4;
+let time = 180;
+let score = 0;
+let playedWords = new Set();
+let timer;
+
+const grid = document.querySelector('.grid');
+const timeDisplay = document.getElementById('timeLeft');
+const scoreDisplay = document.getElementById('score');
+const playedWordsList = document.getElementById('playedWordsList');
+const input = document.getElementById('wordInput');
+const wordsApiKey = 'INSERT YOUR API KEY'; // Your API key
+
+function generateGrid() {
+    grid.innerHTML = '';
+    grid.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+
+    let gridLetters = [];
+    let vowelCount = 0;
+
+    while (gridLetters.length < gridSize * gridSize) {
+        const letter = letters.charAt(Math.floor(Math.random() * letters.length));
+        const count = gridLetters.filter(l => l === letter).length;
+
+        if (vowels.includes(letter) && (vowelCount < 4 || count < 3)) {
+            gridLetters.push(letter);
+            vowelCount++;
+        } else if (count < 3) {
+            gridLetters.push(letter);
+        }
+    }
+
+    gridLetters.forEach(letter => {
+        const cell = document.createElement('div');
+        cell.classList.add('grid-cell');
+        cell.textContent = letter;
+        grid.appendChild(cell);
+    });
+}
+
+function startTimer() {
+    clearInterval(timer);
+    timeDisplay.textContent = time;
+    timer = setInterval(() => {
+        if (time <= 0) {
+            clearInterval(timer);
+            displayMessage("Time's up! Final score: " + score);
+            return;
+        }
+        timeDisplay.textContent = --time;
+    }, 1000);
+}
+
+function reshuffle() {
+    score = 0;
+    scoreDisplay.textContent = score;
+    playedWordsList.innerHTML = '';
+    playedWords.clear();
+    generateGrid();
+    startTimer();
+    input.value = '';
+    input.focus();
+}
+
+async function submitWord() {
+    const word = input.value.trim().toUpperCase();
+    if (word.length > 0) {
+        if (!isWordFormable(word)) {
+            displayMessage('Word cannot be formed with available letters.');
+            input.value = '';
+            input.focus();
+            return;
+        }
+
+        const isValid = await isWordValid(word);
+        if (isValid && !playedWords.has(word)) {
+            updateScore(word.length);
+            addWordToList(word);
+            playedWords.add(word);
+        } else if (playedWords.has(word)) {
+            displayMessage('This word has already been used.');
+        } else {
+            displayMessage('Invalid word or not a recognized English word.');
+        }
+        input.value = '';
+        input.focus();
+    }
+}
+
+function isWordFormable(word) {
+    let tempGridLetters = Array.from(document.querySelectorAll('.grid-cell')).map(cell => cell.textContent);
+    for (let letter of word) {
+        const index = tempGridLetters.indexOf(letter);
+        if (index === -1) {
+            return false;
+        }
+        tempGridLetters[index] = null; // Remove the used letter
+    }
+    return true;
+}
+
+async function isWordValid(word) {
+    const url = `https://wordsapiv1.p.rapidapi.com/words/${word.toLowerCase()}`;
+    const options = {
+        method: 'GET',
+        headers: {
+            'X-RapidAPI-Key': wordsApiKey,
+            'X-RapidAPI-Host': 'wordsapiv1.p.rapidapi.com'
+        }
+    };
+
+    try {
+        const response = await fetch(url, options);
+        if (!response.ok) {
+            throw new Error(`API returned status ${response.status}`);
+        }
+        const data = await response.json();
+        return !!data.word; // Check if the response contains the word
+    } catch (error) {
+        console.error('Error validating word:', error);
+        return false;
+    }
+}
+
+function updateScore(points) {
+    score += points;
+    scoreDisplay.textContent = score;
+}
+
+function addWordToList(word) {
+    const listItem = document.createElement('li');
+    listItem.textContent = word;
+    if (specialWords.includes(word)) {
+        listItem.classList.add('special-word');
+    }
+    playedWordsList.appendChild(listItem);
+}
+
+function displayMessage(message) {
+    const messageElement = document.getElementById('gameMessage');
+    messageElement.textContent = message;
+    setTimeout(() => {
+        messageElement.textContent = '';
+    }, 3000); // Clear message after 3 seconds
+}
+
+function shareOnTwitter() {
+    const difficulty = document.getElementById('difficulty').value;
+    const numWords = playedWords.size;
+    const text = `I scored ${score} on Boggle (${difficulty} level) and found ${numWords} words! Can you beat me? Play here: https://www.mysuperduperwebsite.com/play-with-letters`;
+    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
+}
+
+function changeDifficulty() {
+    const difficulty = document.getElementById('difficulty').value;
+    switch (difficulty) {
+        case 'easy':
+            gridSize = 4;
+            time = 180;
+            break;
+        case 'medium':
+            gridSize = 5;
+            time = 120;
+            break;
+        case 'hard':
+            gridSize = 6;
+            time = 60;
+            break;
+    }
+    reshuffle();
+}
+
+input.addEventListener('keyup', function(event) {
+    if (event.key === 'Enter') {
+        submitWord();
+    }
+});
+
+generateGrid();
+startTimer();
+input.focus();
+</script>
+</body>
 </html>
 
     </script>
