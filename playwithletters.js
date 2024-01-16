@@ -5,11 +5,11 @@ var gameState = {
 };
 
 window.onload = function() {
-    // Set the grid size to 'easy'
-    gameState.gridSize = 4;
-    gameState.timeLimit = 60;
+    // Set the initial game state
+    gameState.gridSize = 4; // or whatever your default grid size is
+    gameState.timeLimit = 60; // or whatever your default time limit is
 
-    // Then generate the grid
+    // Generate the initial grid
     generateGrid();
 };
 
