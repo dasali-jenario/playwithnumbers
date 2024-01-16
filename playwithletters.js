@@ -93,6 +93,7 @@ function reshuffle() {
         for (var j = 0; j < gameState.gridSize; j++) {
             // Create a new grid cell
             var cell = document.createElement('div');
+            cell.className = 'grid-cell';
 
             // Add a random letter to the cell
             var randomLetter = letters.charAt(Math.floor(Math.random() * letters.length));
