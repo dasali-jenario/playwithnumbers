@@ -146,7 +146,7 @@ function checkWord(word) {
     }
 }
 
-return isValid;
+//return isValid;
         
         }
     })
@@ -177,19 +177,20 @@ function displayErrorMessage(message) {
     errorMessageElement.innerText = message;
 }
 
+// Function to generate the grid
 function generateGrid() {
-    // Get the grid container
-    var gridContainer = document.getElementById('grid');
+    // Get the grid element
+    var gridElement = document.getElementById('grid');
 
-    // Use the grid size from the game state
-    var gridSize = gameState.gridSize;
+    // Clear the existing grid
+    gridElement.innerHTML = '';
 
     // Define the letters that can be used in the grid
     var letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
     // Generate the grid
-    for (var i = 0; i < gridSize; i++) {
-        for (var j = 0; j < gridSize; j++) {
+    for (var i = 0; i < gameState.gridSize; i++) {
+        for (var j = 0; j < gameState.gridSize; j++) {
             // Create a new grid cell
             var cell = document.createElement('div');
 
@@ -198,10 +199,10 @@ function generateGrid() {
             cell.textContent = randomLetter;
 
             // Add the cell to the grid container
-            gridContainer.appendChild(cell);
+            gridElement.appendChild(cell);
         }
 
         // Add a line break after each row
-        gridContainer.appendChild(document.createElement('br'));
+        gridElement.appendChild(document.createElement('br'));
     }
 }
