@@ -40,9 +40,6 @@ function changeDifficulty() {
     // Generate a new grid based on the new difficulty
     generateGrid();
 }
-    // Update the grid size in the game state
-    gameState.gridSize = gridSize;
-}
 
 // Function to submit a word
 function submitWord() {
