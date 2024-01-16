@@ -101,14 +101,7 @@ function checkWord(word) {
         }
     })
     .then(response => response.json())
-    function checkWord(word) {
-        fetch(`https://wordsapiv1.p.rapidapi.com/words/${word}`, {
-            method: 'GET',
-            headers: {
-                'x-rapidapi-key': '8a31b0a430msh805f0073a1340c5p18e2a3jsn35cae4f0c64c',
-                'x-rapidapi-host': 'wordsapiv1.p.rapidapi.com'
-            }
-        })
+        }
         .then(response => response.json())
         .then(data => {
             if (data.word) {
