@@ -36,69 +36,6 @@
     </div>
 </body>
 </html>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boggle Game</title>
-    <style>
-        body, input, button, select {
-            font-family: Arial, sans-serif;
-        }
-
-        .game-container {
-            display: flex;
-            flex-direction: row; /* Align children side by side */
-            justify-content: center;
-            align-items: start;
-            flex-wrap: wrap;
-            margin: 10px;
-        }
-
-        .game-play-area, .words-played {
-            margin: 10px;
-        }
-
-        .grid {
-            display: grid;
-            gap: 5px;
-            margin-bottom: 20px;
-        }
-
-        .grid-cell {
-            border: 1px solid #9400D3; /* Dark purple grid lines */
-            padding: 20px;
-            text-align: center;
-            font-size: 24px;
-            transition: background-color 0.3s;
-        }
-
-        .used {
-            background-color: yellow;
-        }
-
-        .special-word {
-            color: purple;
-        }
-
-        .difficulty-selector, .words-played, .social-sharing, .message-area {
-            margin: 10px;
-            text-align: center;
-        }
-
-        .message-area p {
-            color: red;
-            font-weight: bold;
-        }
-
-        @media (max-width: 600px) {
-            .game-container {
-                flex-direction: column; /* Stack children on smaller screens */
-            }
-
-            .grid {
-                width: 100%;
                 box-sizing: border-box;
             }
 
