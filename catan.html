@@ -26,7 +26,8 @@
             align-items: center;
             gap: 0;
             position: relative;
-            margin-top: 20px;
+            margin-top: 40px;
+            padding: 20px;
         }
 
         .hex-row {
@@ -46,7 +47,7 @@
             align-items: center;
             justify-content: center;
             position: relative;
-            margin: 0 -1px;
+            margin: 0;
         }
 
         .hex-input select {
@@ -152,60 +153,54 @@
             const pointSize = 20; // Width/height of the settlement point
             const pointOffset = pointSize / 2;
             
-            let pointCounter = 0;
-            let yOffset = 0; // Starting Y position
+            // Constants for hex geometry
+            const hexHeight = hexSize;
+            const hexSideLength = hexHeight / 2;
+            const hexWidthOffset = hexWidth / 2;
+            const verticalDistance = hexHeight * 0.75;
             
-            // Add points for each row of intersections
-            for (let rowIndex = 0; rowIndex <= rowStructure.length; rowIndex++) {
-                // Get the number of hexes in this row (or previous row if we're on a vertex row)
-                const hexCount = rowIndex === rowStructure.length ? rowStructure[rowIndex - 1] : rowStructure[rowIndex];
+            let pointCounter = 0;
+            
+            // Calculate center positions for all points
+            const points = [];
+            
+            // Top row points
+            for (let row = 0; row < rowStructure.length + 1; row++) {
+                const currentRow = row < rowStructure.length ? rowStructure[row] : rowStructure[row - 1];
+                const maxHexes = Math.max(...rowStructure);
+                const rowStartX = (maxHexes - currentRow) * hexWidthOffset;
                 
-                // Calculate the x-offset for this row to center it
-                const maxHexes = 5; // Maximum hexes in any row
-                const rowOffset = ((maxHexes - hexCount) * hexWidth) / 2;
-                
-                // Add points for this row
-                for (let i = 0; i <= hexCount; i++) {
-                    const point = document.createElement('div');
-                    point.className = 'point';
-                    
-                    // Calculate x position
-                    const xPos = rowOffset + (i * hexWidth) - pointOffset;
-                    
-                    // Calculate y position
-                    const yPos = rowIndex * (verticalSpacing) - pointOffset;
-                    
-                    point.style.left = `${xPos}px`;
-                    point.style.top = `${yPos}px`;
-                    point.onclick = () => selectPoint(pointCounter);
-                    boardSetup.appendChild(point);
-                    pointCounter++;
+                // Top points of each hex in the row
+                for (let i = 0; i <= currentRow; i++) {
+                    points.push({
+                        x: rowStartX + (i * hexWidth),
+                        y: row * verticalDistance
+                    });
                 }
                 
-                // Add intermediate points (except for the last row)
-                if (rowIndex < rowStructure.length - 1) {
-                    const currentHexCount = rowStructure[rowIndex];
-                    const nextHexCount = rowStructure[rowIndex + 1];
-                    const minCount = Math.min(currentHexCount, nextHexCount);
+                // Add intermediate points (except for last row)
+                if (row < rowStructure.length - 1) {
+                    const nextRowHexes = rowStructure[row + 1];
+                    const minHexes = Math.min(currentRow, nextRowHexes);
                     
-                    const intermediateRowOffset = ((maxHexes - Math.max(currentHexCount, nextHexCount)) * hexWidth) / 2;
-                    
-                    for (let i = 0; i < minCount; i++) {
-                        const point = document.createElement('div');
-                        point.className = 'point';
-                        
-                        // Position intermediate points
-                        const xPos = intermediateRowOffset + (i * hexWidth) + (hexWidth / 2) - pointOffset;
-                        const yPos = (rowIndex * verticalSpacing) + (verticalSpacing / 2) - pointOffset;
-                        
-                        point.style.left = `${xPos}px`;
-                        point.style.top = `${yPos}px`;
-                        point.onclick = () => selectPoint(pointCounter);
-                        boardSetup.appendChild(point);
-                        pointCounter++;
+                    for (let i = 0; i < minHexes; i++) {
+                        points.push({
+                            x: rowStartX + hexWidthOffset + (i * hexWidth),
+                            y: row * verticalDistance + (verticalDistance / 2)
+                        });
                     }
                 }
             }
+            
+            // Create and position all points
+            points.forEach((point, index) => {
+                const pointElement = document.createElement('div');
+                pointElement.className = 'point';
+                pointElement.style.left = `${point.x - pointOffset}px`;
+                pointElement.style.top = `${point.y - pointOffset}px`;
+                pointElement.onclick = () => selectPoint(index);
+                boardSetup.appendChild(pointElement);
+            });
         }
 
         addSettlementPoints();
@@ -302,21 +297,15 @@
                 }
             });
 
-            // Shuffle arrays
-            function shuffle(array) {
-                for (let i = array.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [array[i], array[j]] = [array[j], array[i]];
-                }
-                return array;
-            }
-
             availableResources = shuffle(availableResources);
             const shuffledNumbers = shuffle([...numberTokens]);
 
             // Get all hex inputs
             const hexInputs = document.querySelectorAll('.hex-input');
             let numberIndex = 0;
+
+            // First, find the desert hex position
+            const desertIndex = availableResources.indexOf('Desert');
 
             // Assign resources and numbers to hexes
             hexInputs.forEach((hex, index) => {
@@ -327,7 +316,7 @@
                 resourceSelect.value = resource;
 
                 // Assign number (skip for desert)
-                if (resource === 'Desert') {
+                if (index === desertIndex) {
                     numberSelect.value = 'None';
                 } else {
                     numberSelect.value = shuffledNumbers[numberIndex].toString();
@@ -335,7 +324,6 @@
                 }
             });
 
-            // Update probabilities if a point is selected
             updateProbabilities();
         }
     </script>
