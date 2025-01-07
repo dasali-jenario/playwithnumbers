@@ -23,16 +23,23 @@
         }
         .input-container {
             margin-bottom: 2rem;
+            text-align: center;
         }
-        .input-grid {
+        .hex-input-grid {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(5, auto);
+            justify-content: center;
             gap: 0.5rem;
         }
-        .input-grid input {
-            width: 100%;
-            padding: 0.5rem;
-            box-sizing: border-box;
+        .hex-row {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .hex-row input {
+            width: 60px;
+            height: 40px;
+            text-align: center;
         }
         .board-container {
             margin-top: 2rem;
@@ -92,8 +99,37 @@
     <main>
         <div class="input-container">
             <h2>Input Numbers for Hex Fields</h2>
-            <div class="input-grid" id="hexInputs">
-                <!-- Dynamically generated inputs will go here -->
+            <div class="hex-input-grid" id="hexInputs">
+                <div class="hex-row">
+                    <input type="number" placeholder="Hex 1">
+                </div>
+                <div class="hex-row">
+                    <input type="number" placeholder="Hex 2">
+                    <input type="number" placeholder="Hex 3">
+                </div>
+                <div class="hex-row">
+                    <input type="number" placeholder="Hex 4">
+                    <input type="number" placeholder="Hex 5">
+                    <input type="number" placeholder="Hex 6">
+                </div>
+                <div class="hex-row">
+                    <input type="number" placeholder="Hex 7">
+                    <input type="number" placeholder="Hex 8">
+                    <input type="number" placeholder="Hex 9">
+                    <input type="number" placeholder="Hex 10">
+                </div>
+                <div class="hex-row">
+                    <input type="number" placeholder="Hex 11">
+                    <input type="number" placeholder="Hex 12">
+                    <input type="number" placeholder="Hex 13">
+                </div>
+                <div class="hex-row">
+                    <input type="number" placeholder="Hex 14">
+                    <input type="number" placeholder="Hex 15">
+                </div>
+                <div class="hex-row">
+                    <input type="number" placeholder="Hex 16">
+                </div>
             </div>
             <button id="generateBoard">Generate Board</button>
         </div>
@@ -119,15 +155,6 @@
     </main>
     <script>
         const hexCount = 19; // Number of hex fields on a Catan board
-
-        // Generate input fields for hex numbers
-        const inputContainer = document.getElementById('hexInputs');
-        for (let i = 0; i < hexCount; i++) {
-            const input = document.createElement('input');
-            input.type = 'number';
-            input.placeholder = `Hex ${i + 1}`;
-            inputContainer.appendChild(input);
-        }
 
         // Handle board generation
         document.getElementById('generateBoard').addEventListener('click', () => {
@@ -175,4 +202,3 @@
     </script>
 </body>
 </html>
-
