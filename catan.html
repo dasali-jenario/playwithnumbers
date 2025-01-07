@@ -29,7 +29,6 @@
             margin: 0 auto;
             padding: 40px;
             box-sizing: border-box;
-            overflow: visible;
         }
 
         .hex-row {
@@ -44,7 +43,6 @@
             margin-top: 0;
         }
 
-        /* Adjust row positions with exact hex counts */
         .hex-row:nth-child(1) { width: 60%; margin-left: auto; margin-right: auto; } /* 3 hexes */
         .hex-row:nth-child(2) { width: 80%; margin-left: auto; margin-right: auto; } /* 4 hexes */
         .hex-row:nth-child(3) { width: 100%; margin-left: auto; margin-right: auto; } /* 5 hexes */
@@ -106,8 +104,8 @@
     </style>
 </head>
 <body>
-    <h1>Catan Settlement Probability Calculator qq</h1>
-    
+    <h1>Catan Settlement Probability Calculator 22</h1>
+
     <div style="text-align: right; padding: 10px; color: #666;">
         Version: <span id="versionNumber"></span>
     </div>
@@ -153,12 +151,11 @@
             return array;
         }
 
-        // Generate board layout
         const boardSetup = document.getElementById('boardSetup');
         rowStructure.forEach((hexCount, rowIndex) => {
             const rowDiv = document.createElement('div');
             rowDiv.className = 'hex-row';
-            
+
             for (let i = 0; i < hexCount; i++) {
                 const hexDiv = document.createElement('div');
                 hexDiv.className = 'hex-input';
@@ -179,222 +176,37 @@
 
         function addSettlementPoints() {
             const board = document.querySelector('.board-setup');
-            const hexSize = 120; // Hex width
-            const pointOffsets = [
-                [-hexSize * 0.25, -hexSize * 0.5], // Top-left
-                [hexSize * 0.25, -hexSize * 0.5],  // Top-right
-                [hexSize * 0.5, 0],                // Right
-                [hexSize * 0.25, hexSize * 0.5],   // Bottom-right
-                [-hexSize * 0.25, hexSize * 0.5],  // Bottom-left
-                [-hexSize * 0.5, 0],               // Left
-            ];
-
-            // Clear existing points
-            document.querySelectorAll('.point').forEach(p => p.remove());
-            
-            // Get all hex inputs
             const hexInputs = document.querySelectorAll('.hex-input');
-            const boardRect = board.getBoundingClientRect();
-            const addedPoints = new Set(); // Track added points to prevent duplicates
+
+            document.querySelectorAll('.point').forEach(p => p.remove()); // Clear existing points
+
+            const pointOffsets = [
+                [-60, -70], [60, -70], // Top-left, Top-right
+                [90, 0], // Right
+                [60, 70], [-60, 70], // Bottom-right, Bottom-left
+                [-90, 0] // Left
+            ];
 
             hexInputs.forEach((hex, hexIndex) => {
                 const hexRect = hex.getBoundingClientRect();
-                
+                const boardRect = board.getBoundingClientRect();
+
                 pointOffsets.forEach(([dx, dy], pointIndex) => {
-                    const x = hexRect.left + dx - boardRect.left + hexRect.width / 2;
-                    const y = hexRect.top + dy - boardRect.top + hexRect.height / 2;
-                    
-                    // Create a unique key for this point position
-                    const pointKey = `${Math.round(x)},${Math.round(y)}`;
-                    
-                    // Only add point if it hasn't been added yet
-                    if (!addedPoints.has(pointKey)) {
-                        const point = document.createElement('div');
-                        point.className = 'point';
-                        point.style.left = `${x}px`;
-                        point.style.top = `${y}px`;
-                        point.style.transform = 'translate(-50%, -50%)';
-                        point.onclick = () => selectPoint(addedPoints.size);
-                        board.appendChild(point);
-                        addedPoints.add(pointKey);
-                    }
+                    const point = document.createElement('div');
+                    point.className = 'point';
+                    point.style.left = `${hexRect.left - boardRect.left + hexRect.width / 2 + dx}px`;
+                    point.style.top = `${hexRect.top - boardRect.top + hexRect.height / 2 + dy}px`;
+                    point.style.transform = 'translate(-50%, -50%)';
+                    board.appendChild(point);
                 });
             });
         }
 
-        // Update the CSS for the board-setup and hex-input
-        <style>
-        .board-setup {
-            position: relative;
-            width: min(90vw, 800px);
-            aspect-ratio: 1.2;
-            margin: 0 auto;
-            padding: 40px;
-            box-sizing: border-box;
-            overflow: visible;
-        }
-
-        .hex-input {
-            width: 120px;
-            height: 140px;
-            margin: 0 -10px;
-            padding: 10px;
-            background-color: #f9f9f9;
-            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-
-        .point {
-            width: 12px;
-            height: 12px;
-            background-color: #fff;
-            border: 2px solid #666;
-            border-radius: 50%;
-            position: absolute;
-            cursor: pointer;
-            z-index: 3;
-            transition: all 0.2s ease;
-        }
-        </style>
-
-        // Add this to ensure points are positioned correctly
-        <script>
-        window.addEventListener('load', () => {
-            setTimeout(addSettlementPoints, 100);
-        });
-
-        window.addEventListener('resize', () => {
-            setTimeout(addSettlementPoints, 100);
-        });
-        </script>
-
-        function selectPoint(pointIndex) {
-            const points = document.getElementsByClassName('point');
-            Array.from(points).forEach(p => p.classList.remove('selected'));
-            points[pointIndex].classList.add('selected');
-            calculateProbability(pointIndex);
-        }
-
-        addSettlementPoints();
-
-        // Create proper adjacency mapping for the hexagonal board
-        function createPointAdjacencyMap() {
-            const adjacencyMap = {};
-            
-            // Maps each point to its adjacent hexes based on the Catan board layout
-            // First number in each array is the point index, followed by the hex indices it touches
-            const adjacencies = [
-                // Row 1 points (0-6)
-                [0, [0]], [1, [0]], [2, [0,1]], [3, [1]], [4, [1,2]], [5, [2]], [6, [2]],
-                
-                // Row 2 points (7-15)
-                [7, [0,3]], [8, [0,3]], [9, [0,1,3,4]], [10, [1,4]], [11, [1,2,4,5]], 
-                [12, [2,5]], [13, [2,5,6]], [14, [2,6]], [15, [6]],
-                
-                // Row 3 points (16-26)
-                [16, [3]], [17, [3]], [18, [3,4,7,8]], [19, [4,8]], [20, [4,5,8,9]], 
-                [21, [5,9]], [22, [5,6,9,10]], [23, [6,10]], [24, [6,10,11]], [25, [11]], [26, [11]],
-                
-                // Row 4 points (27-35)
-                [27, [7,12]], [28, [7,12]], [29, [7,8,12,13]], [30, [8,13]], [31, [8,9,13,14]], 
-                [32, [9,14]], [33, [9,10,14,15]], [34, [10,15]], [35, [10,11,15,16]],
-                
-                // Row 5 points (36-42)
-                [36, [12]], [37, [12,13]], [38, [13]], [39, [13,14]], [40, [14]], 
-                [41, [14,15]], [42, [15]],
-                
-                // Row 6 points (43-47)
-                [43, [12,17]], [44, [13,17,18]], [45, [14,18]], [46, [15,18,19]], [47, [16,19]]
-            ];
-            
-            adjacencies.forEach(([pointIndex, hexIndices]) => {
-                adjacencyMap[pointIndex] = hexIndices;
-            });
-            
-            return adjacencyMap;
-        }
-
-        // Replace the existing calculateProbability function with this one
-        function calculateProbability(pointIndex) {
-            const adjacentHexes = pointAdjacency[pointIndex];
-            if (!adjacentHexes) return;
-
-            let totalProbability = 0;
-            const resources = new Map();
-            const numberProbs = new Array(13).fill(0); // Index 0 and 7 will stay 0
-
-            adjacentHexes.forEach(hexIndex => {
-                const hexRow = Math.floor(hexIndex / 5);
-                const hexInRow = hexIndex % 5;
-                const rowDiv = boardSetup.children[hexRow];
-                if (!rowDiv) return;
-
-                const hexElements = rowDiv.getElementsByClassName('hex-input');
-                const hexDiv = hexElements[hexInRow];
-                if (!hexDiv) return;
-
-                const number = hexDiv.querySelector('.number').value;
-                const resource = hexDiv.querySelector('.resource').value;
-                
-                if (number !== 'None' && resource !== 'Desert') {
-                    const numberValue = parseInt(number);
-                    const prob = probabilityMap[numberValue];
-                    totalProbability += prob;
-                    numberProbs[numberValue] += prob;
-                    
-                    if (!resources.has(resource)) {
-                        resources.set(resource, prob);
-                    } else {
-                        resources.set(resource, resources.get(resource) + prob);
-                    }
-                }
-            });
-
-            displayResults(totalProbability, resources, numberProbs);
-        }
-
-        // Replace the existing displayResults function with this one
-        function displayResults(totalProbability, resources, numberProbs) {
-            const resourceDiv = document.getElementById('resourceDistribution');
-            let html = `<h3>Total Probability: ${(totalProbability * 100).toFixed(1)}%</h3>`;
-            
-            // Display probability for each possible roll
-            html += '<h4>Probability by Roll:</h4><table style="margin: 0 auto; text-align: left;">';
-            html += '<tr><th>Roll</th><th>Probability</th></tr>';
-            for (let i = 2; i <= 12; i++) {
-                if (i !== 7) { // Skip 7 as it's not a valid roll for resources
-                    const prob = numberProbs[i];
-                    if (prob > 0) {
-                        html += `<tr><td>${i}</td><td>${(prob * 100).toFixed(1)}%</td></tr>`;
-                    }
-                }
-            }
-            html += '</table>';
-
-            // Display probability for each resource
-            html += '<h4>Resource Probabilities:</h4><ul style="list-style: none; padding: 0;">';
-            resources.forEach((prob, resource) => {
-                html += `<li>${resource}: ${(prob * 100).toFixed(1)}%</li>`;
-            });
-            html += '</ul>';
-
-            resourceDiv.innerHTML = html;
-        }
-
-        function updateProbabilities() {
-            const selectedPoint = document.querySelector('.point.selected');
-            if (selectedPoint) {
-                const pointIndex = Array.from(selectedPoint.parentNode.children).indexOf(selectedPoint);
-                calculateProbability(pointIndex);
-            }
-        }
+        window.addEventListener('load', addSettlementPoints);
+        window.addEvent
+        .addEventListener('resize', addSettlementPoints);
 
         function generateRandomBoard() {
-            // Define the correct number of each resource type
             const resourceCounts = {
                 'Desert': 1,
                 'Wood': 4,
@@ -404,21 +216,10 @@
                 'Ore': 3
             };
 
-            // Define the correct number tokens (excluding 7)
             const numberTokens = [
-                2,
-                3, 3,
-                4, 4,
-                5, 5,
-                6, 6,
-                8, 8,
-                9, 9,
-                10, 10,
-                11, 11,
-                12
+                2, 3, 3, 4, 4, 5, 5, 6, 6, 8, 8, 9, 9, 10, 10, 11, 11, 12
             ];
 
-            // Create arrays of available resources and numbers
             let availableResources = [];
             Object.entries(resourceCounts).forEach(([resource, count]) => {
                 for (let i = 0; i < count; i++) {
@@ -429,22 +230,18 @@
             availableResources = shuffle(availableResources);
             const shuffledNumbers = shuffle([...numberTokens]);
 
-            // Get all hex inputs
             const hexInputs = document.querySelectorAll('.hex-input');
             let numberIndex = 0;
 
-            // First, find the desert hex position
             const desertIndex = availableResources.indexOf('Desert');
 
-            // Assign resources and numbers to hexes
             hexInputs.forEach((hex, index) => {
                 const resourceSelect = hex.querySelector('.resource');
                 const numberSelect = hex.querySelector('.number');
-                
+
                 const resource = availableResources[index];
                 resourceSelect.value = resource;
 
-                // Assign number (skip for desert)
                 if (index === desertIndex) {
                     numberSelect.value = 'None';
                 } else {
@@ -453,15 +250,16 @@
                 }
             });
 
-            updateProbabilities();
+            addSettlementPoints();
         }
 
-        // Initialize the adjacency map
-        const pointAdjacency = createPointAdjacencyMap();
-
-        // Generate random version number
         const versionNumber = Math.floor(Math.random() * 9000 + 1000);
         document.getElementById('versionNumber').textContent = versionNumber;
+
+        function updateProbabilities() {
+            // Placeholder function for probability updates
+        }
     </script>
 </body>
 </html>
+
