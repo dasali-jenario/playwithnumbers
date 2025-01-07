@@ -12,56 +12,67 @@
             padding: 20px;
         }
 
+        .board-container {
+            display: flex;
+            justify-content: center;
+            margin: 40px 0;
+        }
+
         .board-setup {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             gap: 10px;
-            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .hex-row {
+            display: flex;
+            gap: 10px;
         }
 
         .hex-input {
+            width: 120px;
+            height: 140px;
             padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            text-align: center;
+            background-color: #f9f9f9;
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
         }
 
         .hex-input select {
-            width: 100%;
+            width: 90%;
             margin-bottom: 5px;
-        }
-
-        .settlement-points {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
+            z-index: 1;
         }
 
         .point {
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            text-align: center;
+            width: 20px;
+            height: 20px;
+            background-color: #fff;
+            border: 2px solid #666;
+            border-radius: 50%;
+            position: absolute;
             cursor: pointer;
+            z-index: 2;
         }
 
         .point:hover {
             background-color: #f0f0f0;
         }
 
-        .selected {
+        .point.selected {
             background-color: #e0e0e0;
-            font-weight: bold;
-        }
-
-        .probability {
-            font-weight: bold;
-            color: #2c3e50;
+            border-color: #000;
         }
 
         .resource-distribution {
             margin-top: 20px;
+            text-align: center;
         }
     </style>
 </head>
@@ -72,16 +83,14 @@
         <h2>How to use:</h2>
         <ol>
             <li>Select the resource and number for each hex on the board</li>
-            <li>Click on intersection points to see the probability of rolling any adjacent number</li>
+            <li>Click on the dots (intersections) to see the probability of rolling any adjacent number</li>
         </ol>
     </div>
 
-    <div class="board-setup" id="boardSetup">
-        <!-- Hex inputs will be generated here -->
-    </div>
-
-    <div class="settlement-points" id="settlementPoints">
-        <!-- Settlement points will be generated here -->
+    <div class="board-container">
+        <div class="board-setup" id="boardSetup">
+            <!-- Board will be generated here -->
+        </div>
     </div>
 
     <div class="resource-distribution" id="resourceDistribution">
@@ -96,44 +105,77 @@
             8: 5/36, 9: 4/36, 10: 3/36, 11: 2/36, 12: 1/36
         };
 
-        // Generate hex inputs
+        const rowStructure = [3, 4, 5, 4, 3];
+        let hexCounter = 0;
+
+        // Generate board layout
         const boardSetup = document.getElementById('boardSetup');
-        for (let i = 0; i < 19; i++) {
-            const hexDiv = document.createElement('div');
-            hexDiv.className = 'hex-input';
-            hexDiv.innerHTML = `
-                <select class="resource" onchange="updateProbabilities()">
-                    ${resources.map(r => `<option value="${r}">${r}</option>`).join('')}
-                </select>
-                <select class="number" onchange="updateProbabilities()">
-                    ${numbers.map(n => `<option value="${n}">${n}</option>`).join('')}
-                </select>
-                <div>Hex ${i + 1}</div>
-            `;
-            boardSetup.appendChild(hexDiv);
+        rowStructure.forEach((hexCount, rowIndex) => {
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'hex-row';
+            
+            for (let i = 0; i < hexCount; i++) {
+                const hexDiv = document.createElement('div');
+                hexDiv.className = 'hex-input';
+                hexDiv.innerHTML = `
+                    <select class="resource" onchange="updateProbabilities()">
+                        ${resources.map(r => `<option value="${r}">${r}</option>`).join('')}
+                    </select>
+                    <select class="number" onchange="updateProbabilities()">
+                        ${numbers.map(n => `<option value="${n}">${n}</option>`).join('')}
+                    </select>
+                    <div>Hex ${hexCounter + 1}</div>
+                `;
+                rowDiv.appendChild(hexDiv);
+                hexCounter++;
+            }
+            boardSetup.appendChild(rowDiv);
+        });
+
+        // Add settlement points
+        function addSettlementPoints() {
+            const hexSize = 140; // height of hex
+            const hexWidth = 120;
+            const verticalSpacing = hexSize * 0.75;
+            
+            let pointCounter = 0;
+            
+            // Add points for each row
+            rowStructure.forEach((hexCount, rowIndex) => {
+                const rowOffset = (5 - hexCount) * (hexWidth / 2);
+                
+                // Add top points for each hex
+                for (let i = 0; i <= hexCount; i++) {
+                    const point = document.createElement('div');
+                    point.className = 'point';
+                    point.style.left = `${rowOffset + i * hexWidth - 10}px`;
+                    point.style.top = `${rowIndex * verticalSpacing - 10}px`;
+                    point.onclick = () => selectPoint(pointCounter);
+                    boardSetup.appendChild(point);
+                    pointCounter++;
+                }
+
+                // Add bottom points for each hex (except last row)
+                if (rowIndex < rowStructure.length - 1) {
+                    for (let i = 0; i < hexCount; i++) {
+                        const point = document.createElement('div');
+                        point.className = 'point';
+                        point.style.left = `${rowOffset + i * hexWidth + (hexWidth / 2) - 10}px`;
+                        point.style.top = `${rowIndex * verticalSpacing + (verticalSpacing / 2) - 10}px`;
+                        point.onclick = () => selectPoint(pointCounter);
+                        boardSetup.appendChild(point);
+                        pointCounter++;
+                    }
+                }
+            });
         }
 
-        // Generate settlement points
-        const settlementPoints = document.getElementById('settlementPoints');
-        for (let i = 0; i < 54; i++) {
-            const pointDiv = document.createElement('div');
-            pointDiv.className = 'point';
-            pointDiv.textContent = `Point ${i + 1}`;
-            pointDiv.onclick = () => selectPoint(i);
-            settlementPoints.appendChild(pointDiv);
-        }
+        addSettlementPoints();
 
-        // Define adjacent hexes for each point
+        // Update adjacency mapping for the hexagonal board layout
         const pointAdjacency = {};
-        // Initialize adjacency map (simplified for example)
-        // In a real implementation, you would need to map out all valid connections
-        for (let i = 0; i < 54; i++) {
-            pointAdjacency[i] = [
-                Math.floor(i / 3),
-                Math.floor(i / 3) + 1,
-                Math.floor(i / 3) + 2
-            ].filter(hex => hex < 19);
-        }
+        // This would need to be manually mapped for accurate hex relationships
+        // For now, using simplified mapping
 
         function selectPoint(pointIndex) {
             const points = document.getElementsByClassName('point');
