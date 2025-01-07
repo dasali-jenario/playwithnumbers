@@ -27,42 +27,53 @@
             width: min(90vw, 800px);
             aspect-ratio: 1.2;
             margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
         }
 
         .hex-row {
             display: flex;
             justify-content: center;
             position: relative;
-            height: 20%;
+            height: 120px;
+            margin-top: -30px; /* Overlap rows */
         }
 
+        .hex-row:first-child {
+            margin-top: 0;
+        }
+
+        /* Adjust row positions with exact hex counts */
+        .hex-row:nth-child(1) { width: 60%; margin-left: auto; margin-right: auto; } /* 3 hexes */
+        .hex-row:nth-child(2) { width: 80%; margin-left: auto; margin-right: auto; } /* 4 hexes */
+        .hex-row:nth-child(3) { width: 100%; margin-left: auto; margin-right: auto; } /* 5 hexes */
+        .hex-row:nth-child(4) { width: 80%; margin-left: auto; margin-right: auto; } /* 4 hexes */
+        .hex-row:nth-child(5) { width: 60%; margin-left: auto; margin-right: auto; } /* 3 hexes */
+
         .hex-input {
-            width: calc(100% / 6);
-            aspect-ratio: 1;
-            position: relative;
-            margin: 0 -2%;
+            width: 120px;
+            height: 140px;
+            margin: 0 -10px;
+            padding: 10px;
             background-color: #f9f9f9;
             clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
         }
 
         .hex-input select {
-            width: 80%;
-            font-size: clamp(0.7rem, 1.5vw, 1rem);
+            width: 90%;
             margin: 2px;
-            position: relative;
             z-index: 2;
         }
 
         .hex-input div {
             font-size: clamp(0.6rem, 1.2vw, 0.8rem);
         }
-
-        /* Adjust row positions */
-        .hex-row:nth-child(1) { transform: translateX(0); width: 60%; margin: 0 auto; }
-        .hex-row:nth-child(2) { transform: translateX(0); width: 80%; margin: 0 auto; }
-        .hex-row:nth-child(3) { transform: translateX(0); width: 100%; margin: 0 auto; }
-        .hex-row:nth-child(4) { transform: translateX(0); width: 80%; margin: 0 auto; }
-        .hex-row:nth-child(5) { transform: translateX(0); width: 60%; margin: 0 auto; }
 
         .point {
             width: min(20px, 3vw);
@@ -95,7 +106,7 @@
     </style>
 </head>
 <body>
-    <h1>Catan Settlement Probability Calculator 0.2</h1>
+    <h1>Catan Settlement Probability Calculator a</h1>
     
     <div class="instructions">
         <h2>How to use:</h2>
@@ -165,40 +176,50 @@
         function addSettlementPoints() {
             const board = document.querySelector('.board-setup');
             const boardRect = board.getBoundingClientRect();
-            const boardWidth = boardRect.width;
-            const boardHeight = boardRect.height;
+            const width = boardRect.width;
+            const height = boardRect.height;
             
-            // Calculate relative positions (0-1 scale)
+            // Define exact positions for all points as percentages
             const positions = [
-                // Row 1 (top)
-                {x: 0.33, y: 0}, {x: 0.45, y: 0}, {x: 0.57, y: 0}, {x: 0.69, y: 0},
-                // Row 2
-                {x: 0.27, y: 0.2}, {x: 0.39, y: 0.2}, {x: 0.51, y: 0.2}, {x: 0.63, y: 0.2}, {x: 0.75, y: 0.2},
-                // Row 3 (middle)
-                {x: 0.21, y: 0.4}, {x: 0.33, y: 0.4}, {x: 0.45, y: 0.4}, {x: 0.57, y: 0.4}, {x: 0.69, y: 0.4}, {x: 0.81, y: 0.4},
-                // Row 4
-                {x: 0.27, y: 0.6}, {x: 0.39, y: 0.6}, {x: 0.51, y: 0.6}, {x: 0.63, y: 0.6}, {x: 0.75, y: 0.6},
-                // Row 5 (bottom)
-                {x: 0.33, y: 0.8}, {x: 0.45, y: 0.8}, {x: 0.57, y: 0.8}, {x: 0.69, y: 0.8}
+                // Top row (4 points)
+                {x: 35, y: 5}, {x: 45, y: 5}, {x: 55, y: 5}, {x: 65, y: 5},
+                
+                // Second row (5 points)
+                {x: 30, y: 20}, {x: 40, y: 20}, {x: 50, y: 20}, {x: 60, y: 20}, {x: 70, y: 20},
+                
+                // Middle row (6 points)
+                {x: 25, y: 35}, {x: 35, y: 35}, {x: 45, y: 35}, {x: 55, y: 35}, {x: 65, y: 35}, {x: 75, y: 35},
+                
+                // Fourth row (5 points)
+                {x: 30, y: 50}, {x: 40, y: 50}, {x: 50, y: 50}, {x: 60, y: 50}, {x: 70, y: 50},
+                
+                // Bottom row (4 points)
+                {x: 35, y: 65}, {x: 45, y: 65}, {x: 55, y: 65}, {x: 65, y: 65}
             ];
 
+            // Clear existing points
+            document.querySelectorAll('.point').forEach(p => p.remove());
+
+            // Create new points
             positions.forEach((pos, index) => {
                 const point = document.createElement('div');
                 point.className = 'point';
-                point.style.left = `${pos.x * 100}%`;
-                point.style.top = `${pos.y * 100}%`;
+                point.style.left = `${pos.x}%`;
+                point.style.top = `${pos.y}%`;
                 point.style.transform = 'translate(-50%, -50%)';
                 point.onclick = () => selectPoint(index);
                 board.appendChild(point);
             });
         }
 
-        // Add a window resize handler
+        // Add this to ensure points are positioned correctly after the board is fully loaded
+        window.addEventListener('load', () => {
+            setTimeout(addSettlementPoints, 100);
+        });
+
+        // Keep the resize handler
         window.addEventListener('resize', () => {
-            // Remove existing points
-            document.querySelectorAll('.point').forEach(p => p.remove());
-            // Readd points with new calculations
-            addSettlementPoints();
+            setTimeout(addSettlementPoints, 100);
         });
 
         function selectPoint(pointIndex) {
