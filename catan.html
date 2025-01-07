@@ -168,51 +168,33 @@
         </div>
     </main>
     <script>
-        const hexCount = 19; // Number of hex fields on a Catan board
-        let locationLetter = 'A'; // Start with 'A'
+        const diceProbabilities = {
+            2: 1 / 36,
+            3: 2 / 36,
+            4: 3 / 36,
+            5: 4 / 36,
+            6: 5 / 36,
+            7: 6 / 36,
+            8: 5 / 36,
+            9: 4 / 36,
+            10: 3 / 36,
+            11: 2 / 36,
+            12: 1 / 36,
+        };
 
-        // Handle board generation
-        document.getElementById('generateBoard').addEventListener('click', () => {
-            const inputs = Array.from(document.querySelectorAll('#hexInputs input'));
-            const hexGrid = document.getElementById('hexGrid');
-            const resultsTable = document.getElementById('probabilityResults');
-            hexGrid.innerHTML = ''; // Clear previous board
-            resultsTable.innerHTML = ''; // Clear previous results
+        const adjacentHexes = [
+            [0, 1, 3], [0, 2, 4], [1, 2, 5], [0, 3, 6, 7], [1, 4, 7, 8], [2, 5, 8, 9], [3, 6, 10],
+            [3, 4, 7, 10, 11], [4, 5, 8, 11, 12], [5, 9, 12], [6, 7, 13], [7, 8, 13, 14],
+            [8, 9, 14, 15], [10, 13, 16], [11, 14, 16, 17], [12, 15, 17], [13, 16, 18], [14, 17, 18],
+            [15, 18],
+        ];
 
-            const probabilities = {}; // Mock probabilities for demo
-            inputs.forEach((input, index) => {
-                const value = parseInt(input.value, 10);
-                const hex = document.createElement('div');
-                hex.classList.add('hex');
+        document.getElementById("generateBoard").addEventListener("click", () => {
+            const hexGrid = document.getElementById("hexGrid");
+            const probabilityResults = document.getElementById("probabilityResults");
 
-                // Assign colors based on resource type
-                if (value === 0) {
-                    hex.classList.add('desert');
-                    hex.textContent = 'D';
-                } else {
-                    hex.classList.add('resource');
-                    hex.textContent = value;
-                }
+            hexGrid.innerHTML = "";
+            probabilityResults.innerHTML = "";
 
-                // Add settlement locations
-                for (let i = 0; i < 6; i++) {
-                    const location = document.createElement('div');
-                    location.classList.add('location');
-                    location.textContent = locationLetter++;
-                    hex.appendChild(location);
-                }
-
-                hexGrid.appendChild(hex);
-
-                // Mock probability calculation (replace with actual logic)
-                probabilities[`Location ${index + 1}`] = value ? value * Math.random().toFixed(2) : 0;
-            });
-
-            // Display probability ratings
-            for (const [location, prob] of Object.entries(probabilities)) {
-                const tr = document.createElement('tr');
-                const locationTd = document.createElement('td');
-                const probTd = document.createElement('td');
-
-                locationTd.textContent = location;
-                probTd.textContent = prob.toFixed(2);
+            const inputs = Array.from(document.querySelectorAll("#hexInputs input"));
+            const hexValues = inputs.map((input) => parse
