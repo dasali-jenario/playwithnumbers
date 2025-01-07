@@ -20,6 +20,7 @@
             align-items: center;
             margin: 2vh 0;
             position: relative;
+            min-height: 600px;
         }
 
         .board-setup {
@@ -35,19 +36,19 @@
             justify-content: center;
             position: relative;
             height: 140px;
-            margin-top: -35px; /* Adjust overlap */
+            margin-top: -35px;
         }
 
         .hex-row:first-child {
             margin-top: 0;
         }
 
-        /* Adjust row offsets */
-        .hex-row:nth-child(1) { transform: translateX(0); }     /* 3 hexes */
-        .hex-row:nth-child(2) { transform: translateX(-30px); } /* 4 hexes */
-        .hex-row:nth-child(3) { transform: translateX(-60px); } /* 5 hexes */
-        .hex-row:nth-child(4) { transform: translateX(-30px); } /* 4 hexes */
-        .hex-row:nth-child(5) { transform: translateX(0); }     /* 3 hexes */
+        /* Update row offsets for better alignment */
+        .hex-row:nth-child(1) { transform: translateX(60px); }  /* 3 hexes */
+        .hex-row:nth-child(2) { transform: translateX(30px); }  /* 4 hexes */
+        .hex-row:nth-child(3) { transform: translateX(0px); }   /* 5 hexes */
+        .hex-row:nth-child(4) { transform: translateX(30px); }  /* 4 hexes */
+        .hex-row:nth-child(5) { transform: translateX(60px); }  /* 3 hexes */
 
         .hex-input {
             width: 120px;
@@ -106,7 +107,7 @@
     </style>
 </head>
 <body>
-    <h1>Catan Settlement Probability Calculator 01</h1>
+    <h1>Catan Settlement Probability Calculator 44</h1>
 
     <div style="text-align: right; padding: 10px; color: #666;">
         Version: <span id="versionNumber"></span>
@@ -263,11 +264,93 @@
             `;
         }
 
-        // Update the initialization
-        window.addEventListener('load', () => {
+        // First, add the missing selectPoint function
+        function selectPoint(pointIndex) {
+            const points = document.querySelectorAll('.point');
+            points.forEach(p => p.classList.remove('selected'));
+            points[pointIndex]?.classList.add('selected');
+            
+            // Calculate and display probabilities
+            const adjacentHexes = getAdjacentHexes(pointIndex);
+            calculateAndDisplayProbabilities(adjacentHexes);
+        }
+
+        // Add function to get adjacent hexes
+        function getAdjacentHexes(pointIndex) {
+            // Simplified adjacency map - you can expand this based on your needs
+            const adjacencyMap = {
+                // Top row points
+                0: [0], 1: [0,1], 2: [1,2], 3: [2],
+                // Second row points
+                4: [0,3], 5: [0,1,3,4], 6: [1,2,4,5], 7: [2,5],
+                // And so on...
+            };
+            return adjacencyMap[pointIndex] || [];
+        }
+
+        // Add function to calculate and display probabilities
+        function calculateAndDisplayProbabilities(adjacentHexes) {
+            let totalProbability = 0;
+            const resources = new Map();
+
+            adjacentHexes.forEach(hexIndex => {
+                const hex = document.querySelectorAll('.hex-input')[hexIndex];
+                const number = hex.querySelector('.number').value;
+                const resource = hex.querySelector('.resource').value;
+                
+                if (number !== 'None' && resource !== 'Desert') {
+                    const prob = probabilityMap[parseInt(number)];
+                    totalProbability += prob;
+                    
+                    if (!resources.has(resource)) {
+                        resources.set(resource, prob);
+                    } else {
+                        resources.set(resource, resources.get(resource) + prob);
+                    }
+                }
+            });
+
+            // Display results
+            const resourceDiv = document.getElementById('resourceDistribution');
+            let html = `<h3>Probability of getting any number: ${(totalProbability * 100).toFixed(1)}%</h3>`;
+            
+            if (resources.size > 0) {
+                html += '<h4>Resource Probabilities:</h4><ul>';
+                resources.forEach((prob, resource) => {
+                    html += `<li>${resource}: ${(prob * 100).toFixed(1)}%</li>`;
+                });
+                html += '</ul>';
+            }
+            
+            resourceDiv.innerHTML = html;
+        }
+
+        // Clean up initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            // Clear any existing content
+            BOARD.innerHTML = '';
+            
+            // Create the hex board
             createHexBoard();
-            setTimeout(addSettlementPoints, 100); // Give time for layout to settle
+            
+            // Set version number
+            document.getElementById('versionNumber').textContent = CONFIG.VERSION;
+            
+            // Add settlement points after a short delay to ensure board is rendered
+            setTimeout(addSettlementPoints, 100);
+            
+            // Generate initial random board
+            generateRandomBoard();
         });
+
+        // Update the updateProbabilities function
+        function updateProbabilities() {
+            const selectedPoint = document.querySelector('.point.selected');
+            if (selectedPoint) {
+                const pointIndex = Array.from(document.querySelectorAll('.point')).indexOf(selectedPoint);
+                selectPoint(pointIndex);
+            }
+        }
 
         window.addEventListener('resize', debounce(() => {
             addSettlementPoints();
@@ -323,10 +406,6 @@
 
         const versionNumber = Math.floor(Math.random() * 9000 + 1000);
         document.getElementById('versionNumber').textContent = versionNumber;
-
-        function updateProbabilities() {
-            // Placeholder function for probability updates
-        }
 
         const memoizedProbabilities = new Map(); // Cache probability calculations
 
