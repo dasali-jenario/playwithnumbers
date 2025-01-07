@@ -83,17 +83,19 @@
             cursor: pointer;
             z-index: 3;
             transition: all 0.2s ease;
+            transform: translate3d(-50%, -50%, 0);
+            will-change: transform;
         }
 
         .point:hover {
             background-color: #f0f0f0;
-            transform: translate(-50%, -50%) scale(1.3);
+            transform: translate3d(-50%, -50%, 0) scale(1.3);
         }
 
         .point.selected {
             background-color: #e0e0e0;
             border-color: #000;
-            transform: translate(-50%, -50%) scale(1.3);
+            transform: translate3d(-50%, -50%, 0) scale(1.3);
         }
 
         .resource-distribution {
@@ -104,7 +106,7 @@
     </style>
 </head>
 <body>
-    <h1>Catan Settlement Probability Calculator 22</h1>
+    <h1>Catan Settlement Probability Calculator</h1>
 
     <div style="text-align: right; padding: 10px; color: #666;">
         Version: <span id="versionNumber"></span>
@@ -151,62 +153,92 @@
             return array;
         }
 
-        const boardSetup = document.getElementById('boardSetup');
-        rowStructure.forEach((hexCount, rowIndex) => {
-            const rowDiv = document.createElement('div');
-            rowDiv.className = 'hex-row';
+        const BOARD = document.querySelector('.board-setup');
+        const RESOURCE_DIST = document.getElementById('resourceDistribution');
 
-            for (let i = 0; i < hexCount; i++) {
-                const hexDiv = document.createElement('div');
-                hexDiv.className = 'hex-input';
-                hexDiv.innerHTML = `
-                    <select class="resource" onchange="updateProbabilities()">
-                        ${resources.map(r => `<option value="${r}">${r}</option>`).join('')}
-                    </select>
-                    <select class="number" onchange="updateProbabilities()">
-                        ${numbers.map(n => `<option value="${n}">${n}</option>`).join('')}
-                    </select>
-                    <div>Hex ${hexCounter + 1}</div>
-                `;
-                rowDiv.appendChild(hexDiv);
-                hexCounter++;
+        const CONFIG = {
+            BOARD_SIZE: {
+                WIDTH: 120,
+                HEIGHT: 140
+            },
+            POINT_SIZE: 12,
+            VERSION: Math.floor(Math.random() * 9000 + 1000),
+            DEBOUNCE_DELAY: 100,
+            RESOURCE_COUNTS: {
+                'Desert': 1,
+                'Wood': 4,
+                'Brick': 3,
+                'Wheat': 4,
+                'Sheep': 4,
+                'Ore': 3
             }
-            boardSetup.appendChild(rowDiv);
-        });
+        };
+
+        function createHexBoard() {
+            const fragment = document.createDocumentFragment();
+            let hexCounter = 0;
+
+            rowStructure.forEach((hexCount, rowIndex) => {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'hex-row';
+
+                for (let i = 0; i < hexCount; i++) {
+                    const hexDiv = document.createElement('div');
+                    hexDiv.className = 'hex-input';
+                    hexDiv.innerHTML = getHexHTML(hexCounter++);
+                    rowDiv.appendChild(hexDiv);
+                }
+                fragment.appendChild(rowDiv);
+            });
+
+            BOARD.appendChild(fragment);
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
 
         function addSettlementPoints() {
-            const board = document.querySelector('.board-setup');
-            const hexInputs = document.querySelectorAll('.hex-input');
+            requestAnimationFrame(() => {
+                const hexInputs = document.querySelectorAll('.hex-input');
+                const boardRect = BOARD.getBoundingClientRect();
+                const fragment = document.createDocumentFragment();
+                const addedPositions = new Set();
 
-            document.querySelectorAll('.point').forEach(p => p.remove()); // Clear existing points
+                hexInputs.forEach(hex => {
+                    const hexRect = hex.getBoundingClientRect();
+                    pointOffsets.forEach(([dx, dy]) => {
+                        const x = hexRect.left - boardRect.left + hexRect.width / 2 + dx;
+                        const y = hexRect.top - boardRect.top + hexRect.height / 2 + dy;
+                        const posKey = `${Math.round(x)},${Math.round(y)}`;
 
-            const pointOffsets = [
-                [-60, -70], [60, -70], // Top-left, Top-right
-                [90, 0], // Right
-                [60, 70], [-60, 70], // Bottom-right, Bottom-left
-                [-90, 0] // Left
-            ];
-
-            hexInputs.forEach((hex, hexIndex) => {
-                const hexRect = hex.getBoundingClientRect();
-                const boardRect = board.getBoundingClientRect();
-
-                pointOffsets.forEach(([dx, dy], pointIndex) => {
-                    const point = document.createElement('div');
-                    point.className = 'point';
-                    point.style.left = `${hexRect.left - boardRect.left + hexRect.width / 2 + dx}px`;
-                    point.style.top = `${hexRect.top - boardRect.top + hexRect.height / 2 + dy}px`;
-                    point.style.transform = 'translate(-50%, -50%)';
-                    board.appendChild(point);
+                        if (!addedPositions.has(posKey)) {
+                            const point = createPoint(x, y);
+                            fragment.appendChild(point);
+                            addedPositions.add(posKey);
+                        }
+                    });
                 });
+
+                const oldPoints = BOARD.querySelectorAll('.point');
+                oldPoints.forEach(p => p.remove());
+                BOARD.appendChild(fragment);
             });
         }
 
         window.addEventListener('load', addSettlementPoints);
-        window.addEvent
-        .addEventListener('resize', addSettlementPoints);
+        window.addEventListener('resize', debounce(addSettlementPoints, 100));
 
         function generateRandomBoard() {
+            memoizedProbabilities.clear();
             const resourceCounts = {
                 'Desert': 1,
                 'Wood': 4,
@@ -259,7 +291,52 @@
         function updateProbabilities() {
             // Placeholder function for probability updates
         }
+
+        const memoizedProbabilities = new Map(); // Cache probability calculations
+
+        function calculateProbability(pointIndex) {
+            const key = getPointKey(pointIndex); // Create a key based on adjacent hex values
+            if (memoizedProbabilities.has(key)) {
+                return memoizedProbabilities.get(key);
+            }
+
+            // Calculate probability...
+            const result = /* calculation logic */;
+            memoizedProbabilities.set(key, result);
+            return result;
+        }
+
+        BOARD.addEventListener('click', (e) => {
+            if (e.target.classList.contains('point')) {
+                const pointIndex = Array.from(BOARD.querySelectorAll('.point')).indexOf(e.target);
+                selectPoint(pointIndex);
+            }
+        });
+
+        function initializeBoard() {
+            try {
+                createHexBoard();
+                addSettlementPoints();
+                document.getElementById('versionNumber').textContent = CONFIG.VERSION;
+            } catch (error) {
+                console.error('Failed to initialize board:', error);
+                // Show user-friendly error message
+                RESOURCE_DIST.innerHTML = '<p class="error">Failed to load board. Please refresh the page.</p>';
+            }
+        }
+
+        function validateBoardState() {
+            const hexInputs = document.querySelectorAll('.hex-input');
+            let desertCount = 0;
+            
+            hexInputs.forEach(hex => {
+                if (hex.querySelector('.resource').value === 'Desert') {
+                    desertCount++;
+                }
+            });
+
+            return desertCount === 1;
+        }
     </script>
 </body>
 </html>
-
