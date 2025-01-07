@@ -3,72 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catan Settlement Probability Calculator 0.1</title>
+    <title>Catan Settlement Probability Calculator</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 1200px;
-            margin: 0 auto;
+            max-width: 100vw;
+            margin: 0;
             padding: 20px;
+            box-sizing: border-box;
         }
 
         .board-container {
+            width: 100%;
             display: flex;
             justify-content: center;
-            margin: 40px 0;
-            padding: 20px;
-            overflow: visible;
+            align-items: center;
+            margin: 2vh 0;
+            position: relative;
         }
 
         .board-setup {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
             position: relative;
-            margin-top: 40px;
-            padding: 20px;
+            width: min(90vw, 800px);
+            aspect-ratio: 1.2;
+            margin: 0 auto;
         }
 
         .hex-row {
             display: flex;
-            height: 105px;
-        }
-
-        .hex-row:nth-child(1) { transform: translateX(60px); }
-        .hex-row:nth-child(2) { transform: translateX(30px); }
-        .hex-row:nth-child(3) { transform: translateX(0); }
-        .hex-row:nth-child(4) { transform: translateX(30px); }
-        .hex-row:nth-child(5) { transform: translateX(60px); }
-
-        .hex-input {
-            width: 120px;
-            height: 140px;
-            margin: 0 -10px;
-            padding: 10px;
-            background-color: #f9f9f9;
-            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
             position: relative;
+            height: 20%;
+        }
+
+        .hex-input {
+            width: calc(100% / 6);
+            aspect-ratio: 1;
+            position: relative;
+            margin: 0 -2%;
+            background-color: #f9f9f9;
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
         }
 
         .hex-input select {
-            width: 90%;
-            margin-bottom: 5px;
-            z-index: 1;
+            width: 80%;
+            font-size: clamp(0.7rem, 1.5vw, 1rem);
+            margin: 2px;
+            position: relative;
+            z-index: 2;
         }
 
+        .hex-input div {
+            font-size: clamp(0.6rem, 1.2vw, 0.8rem);
+        }
+
+        /* Adjust row positions */
+        .hex-row:nth-child(1) { transform: translateX(0); width: 60%; margin: 0 auto; }
+        .hex-row:nth-child(2) { transform: translateX(0); width: 80%; margin: 0 auto; }
+        .hex-row:nth-child(3) { transform: translateX(0); width: 100%; margin: 0 auto; }
+        .hex-row:nth-child(4) { transform: translateX(0); width: 80%; margin: 0 auto; }
+        .hex-row:nth-child(5) { transform: translateX(0); width: 60%; margin: 0 auto; }
+
         .point {
-            width: 20px;
-            height: 20px;
+            width: min(20px, 3vw);
+            height: min(20px, 3vw);
             background-color: #fff;
             border: 2px solid #666;
             border-radius: 50%;
             position: absolute;
             cursor: pointer;
-            z-index: 2;
+            z-index: 3;
             transition: all 0.2s ease;
         }
 
@@ -86,11 +90,12 @@
         .resource-distribution {
             margin-top: 20px;
             text-align: center;
+            font-size: clamp(0.8rem, 1.5vw, 1rem);
         }
     </style>
 </head>
 <body>
-    <h1>Catan Settlement Probability Calculator 0.1</h1>
+    <h1>Catan Settlement Probability Calculator 0.2</h1>
     
     <div class="instructions">
         <h2>How to use:</h2>
@@ -158,71 +163,43 @@
         });
 
         function addSettlementPoints() {
-            const hexWidth = 120;
-            const hexHeight = 140;
-            const rowHeight = 105;
-            const pointSize = 20;
-            const pointOffset = pointSize / 2;
+            const board = document.querySelector('.board-setup');
+            const boardRect = board.getBoundingClientRect();
+            const boardWidth = boardRect.width;
+            const boardHeight = boardRect.height;
             
-            // Define the points structure for a standard Catan board
-            const pointRows = [
-                // Row 0 (top) - 4 points
-                [
-                    {x: hexWidth * 1.0, y: 0},
-                    {x: hexWidth * 1.5, y: 0},
-                    {x: hexWidth * 2.0, y: 0},
-                    {x: hexWidth * 2.5, y: 0}
-                ],
-                // Row 1 - 6 points
-                [
-                    {x: hexWidth * 0.5, y: rowHeight * 0.5},
-                    {x: hexWidth * 1.0, y: rowHeight * 0.5},
-                    {x: hexWidth * 1.5, y: rowHeight * 0.5},
-                    {x: hexWidth * 2.0, y: rowHeight * 0.5},
-                    {x: hexWidth * 2.5, y: rowHeight * 0.5},
-                    {x: hexWidth * 3.0, y: rowHeight * 0.5}
-                ],
-                // Row 2 - 8 points
-                [
-                    {x: hexWidth * 0.0, y: rowHeight},
-                    {x: hexWidth * 0.5, y: rowHeight},
-                    {x: hexWidth * 1.0, y: rowHeight},
-                    {x: hexWidth * 1.5, y: rowHeight},
-                    {x: hexWidth * 2.0, y: rowHeight},
-                    {x: hexWidth * 2.5, y: rowHeight},
-                    {x: hexWidth * 3.0, y: rowHeight},
-                    {x: hexWidth * 3.5, y: rowHeight}
-                ],
-                // Row 3 - 6 points
-                [
-                    {x: hexWidth * 0.5, y: rowHeight * 1.5},
-                    {x: hexWidth * 1.0, y: rowHeight * 1.5},
-                    {x: hexWidth * 1.5, y: rowHeight * 1.5},
-                    {x: hexWidth * 2.0, y: rowHeight * 1.5},
-                    {x: hexWidth * 2.5, y: rowHeight * 1.5},
-                    {x: hexWidth * 3.0, y: rowHeight * 1.5}
-                ],
-                // Row 4 (bottom) - 4 points
-                [
-                    {x: hexWidth * 1.0, y: rowHeight * 2},
-                    {x: hexWidth * 1.5, y: rowHeight * 2},
-                    {x: hexWidth * 2.0, y: rowHeight * 2},
-                    {x: hexWidth * 2.5, y: rowHeight * 2}
-                ]
+            // Calculate relative positions (0-1 scale)
+            const positions = [
+                // Row 1 (top)
+                {x: 0.33, y: 0}, {x: 0.45, y: 0}, {x: 0.57, y: 0}, {x: 0.69, y: 0},
+                // Row 2
+                {x: 0.27, y: 0.2}, {x: 0.39, y: 0.2}, {x: 0.51, y: 0.2}, {x: 0.63, y: 0.2}, {x: 0.75, y: 0.2},
+                // Row 3 (middle)
+                {x: 0.21, y: 0.4}, {x: 0.33, y: 0.4}, {x: 0.45, y: 0.4}, {x: 0.57, y: 0.4}, {x: 0.69, y: 0.4}, {x: 0.81, y: 0.4},
+                // Row 4
+                {x: 0.27, y: 0.6}, {x: 0.39, y: 0.6}, {x: 0.51, y: 0.6}, {x: 0.63, y: 0.6}, {x: 0.75, y: 0.6},
+                // Row 5 (bottom)
+                {x: 0.33, y: 0.8}, {x: 0.45, y: 0.8}, {x: 0.57, y: 0.8}, {x: 0.69, y: 0.8}
             ];
 
-            // Create and position all points
-            pointRows.forEach((row, rowIndex) => {
-                row.forEach((pos, colIndex) => {
-                    const pointElement = document.createElement('div');
-                    pointElement.className = 'point';
-                    pointElement.style.left = `${pos.x + 60 - pointOffset}px`;
-                    pointElement.style.top = `${pos.y - pointOffset}px`;
-                    pointElement.onclick = () => selectPoint(pointRows.slice(0, rowIndex).reduce((acc, r) => acc + r.length, 0) + colIndex);
-                    boardSetup.appendChild(pointElement);
-                });
+            positions.forEach((pos, index) => {
+                const point = document.createElement('div');
+                point.className = 'point';
+                point.style.left = `${pos.x * 100}%`;
+                point.style.top = `${pos.y * 100}%`;
+                point.style.transform = 'translate(-50%, -50%)';
+                point.onclick = () => selectPoint(index);
+                board.appendChild(point);
             });
         }
+
+        // Add a window resize handler
+        window.addEventListener('resize', () => {
+            // Remove existing points
+            document.querySelectorAll('.point').forEach(p => p.remove());
+            // Readd points with new calculations
+            addSettlementPoints();
+        });
 
         function selectPoint(pointIndex) {
             const points = document.getElementsByClassName('point');
@@ -401,4 +378,3 @@
     </script>
 </body>
 </html>
-
