@@ -87,6 +87,10 @@
         </ol>
     </div>
 
+    <div class="controls" style="text-align: center; margin: 20px 0;">
+        <button onclick="generateRandomBoard()" style="padding: 10px 20px; font-size: 16px;">Generate Random Board</button>
+    </div>
+
     <div class="board-container">
         <div class="board-setup" id="boardSetup">
             <!-- Board will be generated here -->
@@ -229,6 +233,76 @@
                 const pointIndex = Array.from(selectedPoint.parentNode.children).indexOf(selectedPoint);
                 calculateProbability(pointIndex);
             }
+        }
+
+        function generateRandomBoard() {
+            // Define the correct number of each resource type
+            const resourceCounts = {
+                'Desert': 1,
+                'Wood': 4,
+                'Brick': 3,
+                'Wheat': 4,
+                'Sheep': 4,
+                'Ore': 3
+            };
+
+            // Define the correct number tokens (excluding 7)
+            const numberTokens = [
+                2,
+                3, 3,
+                4, 4,
+                5, 5,
+                6, 6,
+                8, 8,
+                9, 9,
+                10, 10,
+                11, 11,
+                12
+            ];
+
+            // Create arrays of available resources and numbers
+            let availableResources = [];
+            Object.entries(resourceCounts).forEach(([resource, count]) => {
+                for (let i = 0; i < count; i++) {
+                    availableResources.push(resource);
+                }
+            });
+
+            // Shuffle arrays
+            function shuffle(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+
+            availableResources = shuffle(availableResources);
+            const shuffledNumbers = shuffle([...numberTokens]);
+
+            // Get all hex inputs
+            const hexInputs = document.querySelectorAll('.hex-input');
+            let numberIndex = 0;
+
+            // Assign resources and numbers to hexes
+            hexInputs.forEach((hex, index) => {
+                const resourceSelect = hex.querySelector('.resource');
+                const numberSelect = hex.querySelector('.number');
+                
+                const resource = availableResources[index];
+                resourceSelect.value = resource;
+
+                // Assign number (skip for desert)
+                if (resource === 'Desert') {
+                    numberSelect.value = 'None';
+                } else {
+                    numberSelect.value = shuffledNumbers[numberIndex].toString();
+                    numberIndex++;
+                }
+            });
+
+            // Update probabilities if a point is selected
+            updateProbabilities();
         }
     </script>
 </body>
