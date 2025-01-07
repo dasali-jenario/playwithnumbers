@@ -3,198 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Settlers of Catan Board Tool</title>
+    <title>Catan Settlement Probability Calculator</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f9;
-            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
         }
-        header {
-            background-color: #6200ea;
-            color: white;
-            padding: 1rem;
-            text-align: center;
-        }
-        main {
-            padding: 2rem;
-        }
-        .input-container {
-            margin-bottom: 2rem;
-            text-align: center;
-        }
-        .hex-input-grid {
+
+        .board-setup {
             display: grid;
-            grid-template-rows: repeat(5, auto);
-            justify-content: center;
-            gap: 0.5rem;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
         }
-        .hex-row {
-            display: flex;
-            justify-content: center;
-            gap: 0.5rem;
-        }
-        .hex-row input {
-            width: 60px;
-            height: 40px;
-            text-align: center;
-        }
-        .board-container {
-            margin-top: 2rem;
-            display: flex;
-            justify-content: center;
-            flex-direction: column;
-            align-items: center;
-        }
-        .hex-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 0.5rem;
-        }
-        .hex {
-            width: 60px;
-            height: 60px;
-            background-color: #f0f0f0;
-            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            font-weight: bold;
-            color: #333;
-            position: relative;
-        }
-        .hex.resource {
-            background-color: #ffc107;
-        }
-        .hex.desert {
-            background-color: #d3d3d3;
-        }
-        .location {
-            position: absolute;
-            font-size: 12px;
-            color: #fff;
-            background-color: #6200ea;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            top: -10px;
-            left: -10px;
-        }
-        .results {
-            margin-top: 2rem;
-            text-align: center;
-        }
-        .results table {
-            width: 80%;
-            margin: auto;
-            border-collapse: collapse;
-            margin-top: 1rem;
-        }
-        .results th, .results td {
+
+        .hex-input {
+            padding: 10px;
             border: 1px solid #ccc;
-            padding: 0.5rem;
+            border-radius: 5px;
             text-align: center;
         }
-        .results th {
-            background-color: #eee;
+
+        .hex-input select {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+
+        .settlement-points {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .point {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .point:hover {
+            background-color: #f0f0f0;
+        }
+
+        .selected {
+            background-color: #e0e0e0;
+            font-weight: bold;
+        }
+
+        .probability {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .resource-distribution {
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Settlers of Catan Board Tool</h1>
-        <p>Enter numbers for each hex field to visualize your Catan game board and calculate settlement probabilities.</p>
-    </header>
-    <main>
-        <div class="input-container">
-            <h2>Input Numbers for Hex Fields</h2>
-            <div class="hex-input-grid" id="hexInputs">
-                <div class="hex-row">
-                    <input type="number" min="2" max="12" placeholder="Hex 1">
-                    <input type="number" min="2" max="12" placeholder="Hex 2">
-                    <input type="number" min="2" max="12" placeholder="Hex 3">
-                </div>
-                <div class="hex-row">
-                    <input type="number" min="2" max="12" placeholder="Hex 4">
-                    <input type="number" min="2" max="12" placeholder="Hex 5">
-                    <input type="number" min="2" max="12" placeholder="Hex 6">
-                    <input type="number" min="2" max="12" placeholder="Hex 7">
-                </div>
-                <div class="hex-row">
-                    <input type="number" min="2" max="12" placeholder="Hex 8">
-                    <input type="number" min="2" max="12" placeholder="Hex 9">
-                    <input type="number" min="2" max="12" placeholder="Hex 10">
-                    <input type="number" min="2" max="12" placeholder="Hex 11">
-                    <input type="number" min="2" max="12" placeholder="Hex 12">
-                </div>
-                <div class="hex-row">
-                    <input type="number" min="2" max="12" placeholder="Hex 13">
-                    <input type="number" min="2" max="12" placeholder="Hex 14">
-                    <input type="number" min="2" max="12" placeholder="Hex 15">
-                    <input type="number" min="2" max="12" placeholder="Hex 16">
-                </div>
-                <div class="hex-row">
-                    <input type="number" min="2" max="12" placeholder="Hex 17">
-                    <input type="number" min="2" max="12" placeholder="Hex 18">
-                    <input type="number" min="2" max="12" placeholder="Hex 19">
-                </div>
-            </div>
-            <button id="generateBoard">Generate Board</button>
-        </div>
-        <div class="board-container">
-            <div class="hex-grid" id="hexGrid">
-                <!-- Hex representations will go here -->
-            </div>
-            <div class="results" id="results">
-                <h2>Settlement Probability Ratings</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Location</th>
-                            <th>Probability Rating</th>
-                        </tr>
-                    </thead>
-                    <tbody id="probabilityResults">
-                        <!-- Probability results will be dynamically inserted here -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </main>
+    <h1>Catan Settlement Probability Calculator</h1>
+    
+    <div class="instructions">
+        <h2>How to use:</h2>
+        <ol>
+            <li>Select the resource and number for each hex on the board</li>
+            <li>Click on intersection points to see the probability of rolling any adjacent number</li>
+        </ol>
+    </div>
+
+    <div class="board-setup" id="boardSetup">
+        <!-- Hex inputs will be generated here -->
+    </div>
+
+    <div class="settlement-points" id="settlementPoints">
+        <!-- Settlement points will be generated here -->
+    </div>
+
+    <div class="resource-distribution" id="resourceDistribution">
+        <!-- Resource distribution will be shown here -->
+    </div>
+
     <script>
-        const diceProbabilities = {
-            2: 1 / 36,
-            3: 2 / 36,
-            4: 3 / 36,
-            5: 4 / 36,
-            6: 5 / 36,
-            7: 6 / 36,
-            8: 5 / 36,
-            9: 4 / 36,
-            10: 3 / 36,
-            11: 2 / 36,
-            12: 1 / 36,
+        const resources = ['Desert', 'Wood', 'Brick', 'Wheat', 'Sheep', 'Ore'];
+        const numbers = ['None', '2', '3', '4', '5', '6', '8', '9', '10', '11', '12'];
+        const probabilityMap = {
+            2: 1/36, 3: 2/36, 4: 3/36, 5: 4/36, 6: 5/36,
+            8: 5/36, 9: 4/36, 10: 3/36, 11: 2/36, 12: 1/36
         };
 
-        const adjacentHexes = [
-            [0, 1, 3], [0, 2, 4], [1, 2, 5], [0, 3, 6, 7], [1, 4, 7, 8], [2, 5, 8, 9], [3, 6, 10],
-            [3, 4, 7, 10, 11], [4, 5, 8, 11, 12], [5, 9, 12], [6, 7, 13], [7, 8, 13, 14],
-            [8, 9, 14, 15], [10, 13, 16], [11, 14, 16, 17], [12, 15, 17], [13, 16, 18], [14, 17, 18],
-            [15, 18],
-        ];
+        // Generate hex inputs
+        const boardSetup = document.getElementById('boardSetup');
+        for (let i = 0; i < 19; i++) {
+            const hexDiv = document.createElement('div');
+            hexDiv.className = 'hex-input';
+            hexDiv.innerHTML = `
+                <select class="resource" onchange="updateProbabilities()">
+                    ${resources.map(r => `<option value="${r}">${r}</option>`).join('')}
+                </select>
+                <select class="number" onchange="updateProbabilities()">
+                    ${numbers.map(n => `<option value="${n}">${n}</option>`).join('')}
+                </select>
+                <div>Hex ${i + 1}</div>
+            `;
+            boardSetup.appendChild(hexDiv);
+        }
 
-        document.getElementById("generateBoard").addEventListener("click", () => {
-            const hexGrid = document.getElementById("hexGrid");
-            const probabilityResults = document.getElementById("probabilityResults");
+        // Generate settlement points
+        const settlementPoints = document.getElementById('settlementPoints');
+        for (let i = 0; i < 54; i++) {
+            const pointDiv = document.createElement('div');
+            pointDiv.className = 'point';
+            pointDiv.textContent = `Point ${i + 1}`;
+            pointDiv.onclick = () => selectPoint(i);
+            settlementPoints.appendChild(pointDiv);
+        }
 
-            hexGrid.innerHTML = "";
-            probabilityResults.innerHTML = "";
+        // Define adjacent hexes for each point
+        const pointAdjacency = {};
+        // Initialize adjacency map (simplified for example)
+        // In a real implementation, you would need to map out all valid connections
+        for (let i = 0; i < 54; i++) {
+            pointAdjacency[i] = [
+                Math.floor(i / 3),
+                Math.floor(i / 3) + 1,
+                Math.floor(i / 3) + 2
+            ].filter(hex => hex < 19);
+        }
 
-            const inputs = Array.from(document.querySelectorAll("#hexInputs input"));
-            const hexValues = inputs.map((input) => parse
+        function selectPoint(pointIndex) {
+            const points = document.getElementsByClassName('point');
+            Array.from(points).forEach(p => p.classList.remove('selected'));
+            points[pointIndex].classList.add('selected');
+            
+            calculateProbability(pointIndex);
+        }
+
+        function calculateProbability(pointIndex) {
+            const adjacentHexes = pointAdjacency[pointIndex];
+            let totalProbability = 0;
+            const resources = new Map();
+
+            adjacentHexes.forEach(hexIndex => {
+                const hexDiv = boardSetup.children[hexIndex];
+                const number = hexDiv.querySelector('.number').value;
+                const resource = hexDiv.querySelector('.resource').value;
+                
+                if (number !== 'None' && resource !== 'Desert') {
+                    const prob = probabilityMap[parseInt(number)];
+                    totalProbability += prob;
+                    
+                    if (!resources.has(resource)) {
+                        resources.set(resource, prob);
+                    } else {
+                        resources.set(resource, resources.get(resource) + prob);
+                    }
+                }
+            });
+
+            displayResults(totalProbability, resources);
+        }
+
+        function displayResults(totalProbability, resources) {
+            const resourceDiv = document.getElementById('resourceDistribution');
+            let html = `<h3>Probability of rolling any adjacent number: ${(totalProbability * 100).toFixed(1)}%</h3>`;
+            
+            html += '<h4>Resource Probabilities:</h4><ul>';
+            resources.forEach((prob, resource) => {
+                html += `<li>${resource}: ${(prob * 100).toFixed(1)}%</li>`;
+            });
+            html += '</ul>';
+
+            resourceDiv.innerHTML = html;
+        }
+
+        function updateProbabilities() {
+            const selectedPoint = document.querySelector('.point.selected');
+            if (selectedPoint) {
+                const pointIndex = Array.from(selectedPoint.parentNode.children).indexOf(selectedPoint);
+                calculateProbability(pointIndex);
+            }
+        }
+    </script>
+</body>
+</html>
