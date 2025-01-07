@@ -205,32 +205,58 @@
 
         addSettlementPoints();
 
-        // Update adjacency mapping for the hexagonal board layout
-        const pointAdjacency = {};
-        // This would need to be manually mapped for accurate hex relationships
-        // For now, using simplified mapping
-
-        function selectPoint(pointIndex) {
-            const points = document.getElementsByClassName('point');
-            Array.from(points).forEach(p => p.classList.remove('selected'));
-            points[pointIndex].classList.add('selected');
+        // Create proper adjacency mapping for the hexagonal board
+        function createPointAdjacencyMap() {
+            const adjacencyMap = {};
             
-            calculateProbability(pointIndex);
+            // Maps each point to its adjacent hexes based on the Catan board layout
+            const adjacencies = [
+                // Top row points (0-3)
+                [0,1], [0,1,2], [1,2,3], [2,3],
+                // Second row points (4-8)
+                [0,4], [0,1,4], [1,2,5], [2,3,5], [3,6],
+                // Middle row points (9-14)
+                [4,7], [4,5,7], [5,7,8], [5,6,8], [6,8,9], [6,9],
+                // Fourth row points (15-19)
+                [7,10], [7,8,10], [8,9,11], [9,11,12], [9,12],
+                // Bottom row points (20-23)
+                [10,13], [10,11,13], [11,12,14], [12,14]
+            ];
+            
+            adjacencies.forEach((hexIndices, pointIndex) => {
+                adjacencyMap[pointIndex] = hexIndices;
+            });
+            
+            return adjacencyMap;
         }
 
+        // Replace the existing calculateProbability function with this one
         function calculateProbability(pointIndex) {
             const adjacentHexes = pointAdjacency[pointIndex];
+            if (!adjacentHexes) return;
+
             let totalProbability = 0;
             const resources = new Map();
+            const numberProbs = new Array(13).fill(0); // Index 0 and 7 will stay 0
 
             adjacentHexes.forEach(hexIndex => {
-                const hexDiv = boardSetup.children[hexIndex];
+                const hexRow = Math.floor(hexIndex / 5);
+                const hexInRow = hexIndex % 5;
+                const rowDiv = boardSetup.children[hexRow];
+                if (!rowDiv) return;
+
+                const hexElements = rowDiv.getElementsByClassName('hex-input');
+                const hexDiv = hexElements[hexInRow];
+                if (!hexDiv) return;
+
                 const number = hexDiv.querySelector('.number').value;
                 const resource = hexDiv.querySelector('.resource').value;
                 
                 if (number !== 'None' && resource !== 'Desert') {
-                    const prob = probabilityMap[parseInt(number)];
+                    const numberValue = parseInt(number);
+                    const prob = probabilityMap[numberValue];
                     totalProbability += prob;
+                    numberProbs[numberValue] += prob;
                     
                     if (!resources.has(resource)) {
                         resources.set(resource, prob);
@@ -240,14 +266,29 @@
                 }
             });
 
-            displayResults(totalProbability, resources);
+            displayResults(totalProbability, resources, numberProbs);
         }
 
-        function displayResults(totalProbability, resources) {
+        // Replace the existing displayResults function with this one
+        function displayResults(totalProbability, resources, numberProbs) {
             const resourceDiv = document.getElementById('resourceDistribution');
-            let html = `<h3>Probability of rolling any adjacent number: ${(totalProbability * 100).toFixed(1)}%</h3>`;
+            let html = `<h3>Total Probability: ${(totalProbability * 100).toFixed(1)}%</h3>`;
             
-            html += '<h4>Resource Probabilities:</h4><ul>';
+            // Display probability for each possible roll
+            html += '<h4>Probability by Roll:</h4><table style="margin: 0 auto; text-align: left;">';
+            html += '<tr><th>Roll</th><th>Probability</th></tr>';
+            for (let i = 2; i <= 12; i++) {
+                if (i !== 7) { // Skip 7 as it's not a valid roll for resources
+                    const prob = numberProbs[i];
+                    if (prob > 0) {
+                        html += `<tr><td>${i}</td><td>${(prob * 100).toFixed(1)}%</td></tr>`;
+                    }
+                }
+            }
+            html += '</table>';
+
+            // Display probability for each resource
+            html += '<h4>Resource Probabilities:</h4><ul style="list-style: none; padding: 0;">';
             resources.forEach((prob, resource) => {
                 html += `<li>${resource}: ${(prob * 100).toFixed(1)}%</li>`;
             });
@@ -326,6 +367,9 @@
 
             updateProbabilities();
         }
+
+        // Initialize the adjacency map
+        const pointAdjacency = createPointAdjacencyMap();
     </script>
 </body>
 </html>
