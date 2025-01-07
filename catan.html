@@ -29,6 +29,7 @@
             margin: 0 auto;
             padding: 40px;
             box-sizing: border-box;
+            overflow: visible;
         }
 
         .hex-row {
@@ -178,53 +179,98 @@
 
         function addSettlementPoints() {
             const board = document.querySelector('.board-setup');
-            const boardRect = board.getBoundingClientRect();
-            
-            // Define exact positions for all points as percentages
-            const positions = [
-                // Row 1 (top) - 7 points
-                {x: 20, y: 12}, {x: 30, y: 12}, {x: 40, y: 12}, {x: 50, y: 12}, {x: 60, y: 12}, {x: 70, y: 12}, {x: 80, y: 12},
-                
-                // Row 2 - 9 points
-                {x: 10, y: 28}, {x: 20, y: 28}, {x: 30, y: 28}, {x: 40, y: 28}, {x: 50, y: 28}, {x: 60, y: 28}, {x: 70, y: 28}, {x: 80, y: 28}, {x: 90, y: 28},
-                
-                // Row 3 - 11 points
-                {x: 0, y: 44}, {x: 10, y: 44}, {x: 20, y: 44}, {x: 30, y: 44}, {x: 40, y: 44}, {x: 50, y: 44}, {x: 60, y: 44}, {x: 70, y: 44}, {x: 80, y: 44}, {x: 90, y: 44}, {x: 100, y: 44},
-                
-                // Row 4 - 9 points
-                {x: 10, y: 60}, {x: 20, y: 60}, {x: 30, y: 60}, {x: 40, y: 60}, {x: 50, y: 60}, {x: 60, y: 60}, {x: 70, y: 60}, {x: 80, y: 60}, {x: 90, y: 60},
-                
-                // Row 5 - 7 points
-                {x: 20, y: 76}, {x: 30, y: 76}, {x: 40, y: 76}, {x: 50, y: 76}, {x: 60, y: 76}, {x: 70, y: 76}, {x: 80, y: 76},
-                
-                // Row 6 (bottom) - 5 points
-                {x: 30, y: 92}, {x: 40, y: 92}, {x: 50, y: 92}, {x: 60, y: 92}, {x: 70, y: 92}
+            const hexSize = 120; // Hex width
+            const pointOffsets = [
+                [-hexSize * 0.25, -hexSize * 0.5], // Top-left
+                [hexSize * 0.25, -hexSize * 0.5],  // Top-right
+                [hexSize * 0.5, 0],                // Right
+                [hexSize * 0.25, hexSize * 0.5],   // Bottom-right
+                [-hexSize * 0.25, hexSize * 0.5],  // Bottom-left
+                [-hexSize * 0.5, 0],               // Left
             ];
 
             // Clear existing points
             document.querySelectorAll('.point').forEach(p => p.remove());
+            
+            // Get all hex inputs
+            const hexInputs = document.querySelectorAll('.hex-input');
+            const boardRect = board.getBoundingClientRect();
+            const addedPoints = new Set(); // Track added points to prevent duplicates
 
-            // Create new points
-            positions.forEach((pos, index) => {
-                const point = document.createElement('div');
-                point.className = 'point';
-                point.style.left = `${pos.x}%`;
-                point.style.top = `${pos.y}%`;
-                point.style.transform = 'translate(-50%, -50%)';
-                point.onclick = () => selectPoint(index);
-                board.appendChild(point);
+            hexInputs.forEach((hex, hexIndex) => {
+                const hexRect = hex.getBoundingClientRect();
+                
+                pointOffsets.forEach(([dx, dy], pointIndex) => {
+                    const x = hexRect.left + dx - boardRect.left + hexRect.width / 2;
+                    const y = hexRect.top + dy - boardRect.top + hexRect.height / 2;
+                    
+                    // Create a unique key for this point position
+                    const pointKey = `${Math.round(x)},${Math.round(y)}`;
+                    
+                    // Only add point if it hasn't been added yet
+                    if (!addedPoints.has(pointKey)) {
+                        const point = document.createElement('div');
+                        point.className = 'point';
+                        point.style.left = `${x}px`;
+                        point.style.top = `${y}px`;
+                        point.style.transform = 'translate(-50%, -50%)';
+                        point.onclick = () => selectPoint(addedPoints.size);
+                        board.appendChild(point);
+                        addedPoints.add(pointKey);
+                    }
+                });
             });
         }
 
-        // Add this to ensure points are positioned correctly after the board is fully loaded
+        // Update the CSS for the board-setup and hex-input
+        <style>
+        .board-setup {
+            position: relative;
+            width: min(90vw, 800px);
+            aspect-ratio: 1.2;
+            margin: 0 auto;
+            padding: 40px;
+            box-sizing: border-box;
+            overflow: visible;
+        }
+
+        .hex-input {
+            width: 120px;
+            height: 140px;
+            margin: 0 -10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .point {
+            width: 12px;
+            height: 12px;
+            background-color: #fff;
+            border: 2px solid #666;
+            border-radius: 50%;
+            position: absolute;
+            cursor: pointer;
+            z-index: 3;
+            transition: all 0.2s ease;
+        }
+        </style>
+
+        // Add this to ensure points are positioned correctly
+        <script>
         window.addEventListener('load', () => {
             setTimeout(addSettlementPoints, 100);
         });
 
-        // Keep the resize handler
         window.addEventListener('resize', () => {
             setTimeout(addSettlementPoints, 100);
         });
+        </script>
 
         function selectPoint(pointIndex) {
             const points = document.getElementsByClassName('point');
