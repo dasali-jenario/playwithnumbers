@@ -28,6 +28,7 @@
             position: relative;
             margin-top: 40px;
             padding: 20px;
+            transform: translateX(-30px);
         }
 
         .hex-row {
@@ -35,6 +36,12 @@
             gap: 0;
             margin-bottom: -35px;
         }
+
+        .hex-row:nth-child(1) { margin-left: 120px; }
+        .hex-row:nth-child(2) { margin-left: 60px; }
+        .hex-row:nth-child(3) { margin-left: 0; }
+        .hex-row:nth-child(4) { margin-left: 60px; }
+        .hex-row:nth-child(5) { margin-left: 120px; }
 
         .hex-input {
             width: 120px;
@@ -121,6 +128,14 @@
         const rowStructure = [3, 4, 5, 4, 3];
         let hexCounter = 0;
 
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
         // Generate board layout
         const boardSetup = document.getElementById('boardSetup');
         rowStructure.forEach((hexCount, rowIndex) => {
@@ -145,62 +160,69 @@
             boardSetup.appendChild(rowDiv);
         });
 
-        // Add settlement points
         function addSettlementPoints() {
             const hexSize = 140; // height of hex
             const hexWidth = 120;
-            const verticalSpacing = hexSize * 0.75; // Space between rows
-            const pointSize = 20; // Width/height of the settlement point
+            const pointSize = 20;
             const pointOffset = pointSize / 2;
             
-            // Constants for hex geometry
-            const hexHeight = hexSize;
-            const hexSideLength = hexHeight / 2;
-            const hexWidthOffset = hexWidth / 2;
-            const verticalDistance = hexHeight * 0.75;
-            
-            let pointCounter = 0;
-            
-            // Calculate center positions for all points
-            const points = [];
-            
-            // Top row points
-            for (let row = 0; row < rowStructure.length + 1; row++) {
-                const currentRow = row < rowStructure.length ? rowStructure[row] : rowStructure[row - 1];
-                const maxHexes = Math.max(...rowStructure);
-                const rowStartX = (maxHexes - currentRow) * hexWidthOffset;
+            // Define the points structure for a standard Catan board
+            const pointPositions = [
+                // Row 0 (top)
+                {x: hexWidth, y: 0},
+                {x: hexWidth * 1.5, y: 0},
+                {x: hexWidth * 2, y: 0},
+                {x: hexWidth * 2.5, y: 0},
                 
-                // Top points of each hex in the row
-                for (let i = 0; i <= currentRow; i++) {
-                    points.push({
-                        x: rowStartX + (i * hexWidth),
-                        y: row * verticalDistance
-                    });
-                }
+                // Row 1
+                {x: hexWidth * 0.5, y: hexSize * 0.25},
+                {x: hexWidth, y: hexSize * 0.25},
+                {x: hexWidth * 1.5, y: hexSize * 0.25},
+                {x: hexWidth * 2, y: hexSize * 0.25},
+                {x: hexWidth * 2.5, y: hexSize * 0.25},
+                {x: hexWidth * 3, y: hexSize * 0.25},
                 
-                // Add intermediate points (except for last row)
-                if (row < rowStructure.length - 1) {
-                    const nextRowHexes = rowStructure[row + 1];
-                    const minHexes = Math.min(currentRow, nextRowHexes);
-                    
-                    for (let i = 0; i < minHexes; i++) {
-                        points.push({
-                            x: rowStartX + hexWidthOffset + (i * hexWidth),
-                            y: row * verticalDistance + (verticalDistance / 2)
-                        });
-                    }
-                }
-            }
-            
+                // Row 2
+                {x: 0, y: hexSize * 0.5},
+                {x: hexWidth * 0.5, y: hexSize * 0.5},
+                {x: hexWidth, y: hexSize * 0.5},
+                {x: hexWidth * 1.5, y: hexSize * 0.5},
+                {x: hexWidth * 2, y: hexSize * 0.5},
+                {x: hexWidth * 2.5, y: hexSize * 0.5},
+                {x: hexWidth * 3, y: hexSize * 0.5},
+                {x: hexWidth * 3.5, y: hexSize * 0.5},
+                
+                // Row 3
+                {x: hexWidth * 0.5, y: hexSize * 0.75},
+                {x: hexWidth, y: hexSize * 0.75},
+                {x: hexWidth * 1.5, y: hexSize * 0.75},
+                {x: hexWidth * 2, y: hexSize * 0.75},
+                {x: hexWidth * 2.5, y: hexSize * 0.75},
+                {x: hexWidth * 3, y: hexSize * 0.75},
+                
+                // Row 4 (bottom)
+                {x: hexWidth, y: hexSize},
+                {x: hexWidth * 1.5, y: hexSize},
+                {x: hexWidth * 2, y: hexSize},
+                {x: hexWidth * 2.5, y: hexSize}
+            ];
+
             // Create and position all points
-            points.forEach((point, index) => {
+            pointPositions.forEach((pos, index) => {
                 const pointElement = document.createElement('div');
                 pointElement.className = 'point';
-                pointElement.style.left = `${point.x - pointOffset}px`;
-                pointElement.style.top = `${point.y - pointOffset}px`;
+                pointElement.style.left = `${pos.x - pointOffset}px`;
+                pointElement.style.top = `${pos.y - pointOffset}px`;
                 pointElement.onclick = () => selectPoint(index);
                 boardSetup.appendChild(pointElement);
             });
+        }
+
+        function selectPoint(pointIndex) {
+            const points = document.getElementsByClassName('point');
+            Array.from(points).forEach(p => p.classList.remove('selected'));
+            points[pointIndex].classList.add('selected');
+            calculateProbability(pointIndex);
         }
 
         addSettlementPoints();
