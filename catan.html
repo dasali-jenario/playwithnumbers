@@ -64,12 +64,27 @@
             font-size: 14px;
             font-weight: bold;
             color: #333;
+            position: relative;
         }
         .hex.resource {
             background-color: #ffc107;
         }
         .hex.desert {
             background-color: #d3d3d3;
+        }
+        .location {
+            position: absolute;
+            font-size: 12px;
+            color: #fff;
+            background-color: #6200ea;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            top: -10px;
+            left: -10px;
         }
         .results {
             margin-top: 2rem;
@@ -101,33 +116,33 @@
             <h2>Input Numbers for Hex Fields</h2>
             <div class="hex-input-grid" id="hexInputs">
                 <div class="hex-row">
-                    <input type="number" placeholder="Hex 1">
-                    <input type="number" placeholder="Hex 2">
-                    <input type="number" placeholder="Hex 3">
+                    <input type="number" min="2" max="12" placeholder="Hex 1">
+                    <input type="number" min="2" max="12" placeholder="Hex 2">
+                    <input type="number" min="2" max="12" placeholder="Hex 3">
                 </div>
                 <div class="hex-row">
-                    <input type="number" placeholder="Hex 4">
-                    <input type="number" placeholder="Hex 5">
-                    <input type="number" placeholder="Hex 6">
-                    <input type="number" placeholder="Hex 7">
+                    <input type="number" min="2" max="12" placeholder="Hex 4">
+                    <input type="number" min="2" max="12" placeholder="Hex 5">
+                    <input type="number" min="2" max="12" placeholder="Hex 6">
+                    <input type="number" min="2" max="12" placeholder="Hex 7">
                 </div>
                 <div class="hex-row">
-                    <input type="number" placeholder="Hex 8">
-                    <input type="number" placeholder="Hex 9">
-                    <input type="number" placeholder="Hex 10">
-                    <input type="number" placeholder="Hex 11">
-                    <input type="number" placeholder="Hex 12">
+                    <input type="number" min="2" max="12" placeholder="Hex 8">
+                    <input type="number" min="2" max="12" placeholder="Hex 9">
+                    <input type="number" min="2" max="12" placeholder="Hex 10">
+                    <input type="number" min="2" max="12" placeholder="Hex 11">
+                    <input type="number" min="2" max="12" placeholder="Hex 12">
                 </div>
                 <div class="hex-row">
-                    <input type="number" placeholder="Hex 13">
-                    <input type="number" placeholder="Hex 14">
-                    <input type="number" placeholder="Hex 15">
-                    <input type="number" placeholder="Hex 16">
+                    <input type="number" min="2" max="12" placeholder="Hex 13">
+                    <input type="number" min="2" max="12" placeholder="Hex 14">
+                    <input type="number" min="2" max="12" placeholder="Hex 15">
+                    <input type="number" min="2" max="12" placeholder="Hex 16">
                 </div>
                 <div class="hex-row">
-                    <input type="number" placeholder="Hex 17">
-                    <input type="number" placeholder="Hex 18">
-                    <input type="number" placeholder="Hex 19">
+                    <input type="number" min="2" max="12" placeholder="Hex 17">
+                    <input type="number" min="2" max="12" placeholder="Hex 18">
+                    <input type="number" min="2" max="12" placeholder="Hex 19">
                 </div>
             </div>
             <button id="generateBoard">Generate Board</button>
@@ -154,6 +169,7 @@
     </main>
     <script>
         const hexCount = 19; // Number of hex fields on a Catan board
+        let locationLetter = 'A'; // Start with 'A'
 
         // Handle board generation
         document.getElementById('generateBoard').addEventListener('click', () => {
@@ -178,6 +194,14 @@
                     hex.textContent = value;
                 }
 
+                // Add settlement locations
+                for (let i = 0; i < 6; i++) {
+                    const location = document.createElement('div');
+                    location.classList.add('location');
+                    location.textContent = locationLetter++;
+                    hex.appendChild(location);
+                }
+
                 hexGrid.appendChild(hex);
 
                 // Mock probability calculation (replace with actual logic)
@@ -192,12 +216,3 @@
 
                 locationTd.textContent = location;
                 probTd.textContent = prob.toFixed(2);
-
-                tr.appendChild(locationTd);
-                tr.appendChild(probTd);
-                resultsTable.appendChild(tr);
-            }
-        });
-    </script>
-</body>
-</html>
