@@ -107,7 +107,7 @@
     </style>
 </head>
 <body>
-    <h1>Catan Settlement Probability Calculator 44</h1>
+    <h1>Catan Settlement Probability Calculator a</h1>
 
     <div style="text-align: right; padding: 10px; color: #666;">
         Version: <span id="versionNumber"></span>
@@ -136,24 +136,7 @@
     </div>
 
     <script>
-        const resources = ['Desert', 'Wood', 'Brick', 'Wheat', 'Sheep', 'Ore'];
-        const numbers = ['None', '2', '3', '4', '5', '6', '8', '9', '10', '11', '12'];
-        const probabilityMap = {
-            2: 1/36, 3: 2/36, 4: 3/36, 5: 4/36, 6: 5/36,
-            8: 5/36, 9: 4/36, 10: 3/36, 11: 2/36, 12: 1/36
-        };
-
-        const rowStructure = [3, 4, 5, 4, 3];
-        let hexCounter = 0;
-
-        function shuffle(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
-        }
-
+        // Constants and configurations first
         const BOARD = document.querySelector('.board-setup');
         const RESOURCE_DIST = document.getElementById('resourceDistribution');
 
@@ -174,6 +157,50 @@
                 'Ore': 3
             }
         };
+
+        // Then the rest of your existing constants
+        const resources = ['Desert', 'Wood', 'Brick', 'Wheat', 'Sheep', 'Ore'];
+        const numbers = ['None', '2', '3', '4', '5', '6', '8', '9', '10', '11', '12'];
+        const probabilityMap = {
+            2: 1/36, 3: 2/36, 4: 3/36, 5: 4/36, 6: 5/36,
+            8: 5/36, 9: 4/36, 10: 3/36, 11: 2/36, 12: 1/36
+        };
+
+        const rowStructure = [3, 4, 5, 4, 3];
+        let hexCounter = 0;
+        const memoizedProbabilities = new Map();
+
+        // Move initialization to window.onload instead of DOMContentLoaded
+        window.onload = () => {
+            try {
+                // Clear any existing content
+                BOARD.innerHTML = '';
+                
+                // Create the hex board
+                createHexBoard();
+                
+                // Set version number
+                document.getElementById('versionNumber').textContent = CONFIG.VERSION;
+                
+                // Add settlement points and generate board
+                setTimeout(() => {
+                    addSettlementPoints();
+                    generateRandomBoard();
+                }, 100);
+
+            } catch (error) {
+                console.error('Failed to initialize board:', error);
+                RESOURCE_DIST.innerHTML = '<p class="error">Failed to load board. Please refresh the page.</p>';
+            }
+        };
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
 
         function createHexBoard() {
             const fragment = document.createDocumentFragment();
@@ -325,24 +352,6 @@
             resourceDiv.innerHTML = html;
         }
 
-        // Clean up initialization
-        document.addEventListener('DOMContentLoaded', () => {
-            // Clear any existing content
-            BOARD.innerHTML = '';
-            
-            // Create the hex board
-            createHexBoard();
-            
-            // Set version number
-            document.getElementById('versionNumber').textContent = CONFIG.VERSION;
-            
-            // Add settlement points after a short delay to ensure board is rendered
-            setTimeout(addSettlementPoints, 100);
-            
-            // Generate initial random board
-            generateRandomBoard();
-        });
-
         // Update the updateProbabilities function
         function updateProbabilities() {
             const selectedPoint = document.querySelector('.point.selected');
@@ -404,21 +413,42 @@
             addSettlementPoints();
         }
 
-        const versionNumber = Math.floor(Math.random() * 9000 + 1000);
-        document.getElementById('versionNumber').textContent = versionNumber;
-
-        const memoizedProbabilities = new Map(); // Cache probability calculations
-
         function calculateProbability(pointIndex) {
-            const key = getPointKey(pointIndex); // Create a key based on adjacent hex values
+            const adjacentHexes = getAdjacentHexes(pointIndex);
+            const hexValues = adjacentHexes.map(hexIndex => {
+                const hex = document.querySelectorAll('.hex-input')[hexIndex];
+                return {
+                    number: hex.querySelector('.number').value,
+                    resource: hex.querySelector('.resource').value
+                };
+            });
+            
+            const key = JSON.stringify(hexValues);
             if (memoizedProbabilities.has(key)) {
                 return memoizedProbabilities.get(key);
             }
 
-            // Calculate probability...
-            const result = /* calculation logic */;
-            memoizedProbabilities.set(key, result);
-            return result;
+            let totalProbability = 0;
+            hexValues.forEach(hex => {
+                if (hex.number !== 'None' && hex.resource !== 'Desert') {
+                    totalProbability += probabilityMap[parseInt(hex.number)];
+                }
+            });
+
+            memoizedProbabilities.set(key, totalProbability);
+            return totalProbability;
+        }
+
+        function getPointKey(pointIndex) {
+            const adjacentHexes = getAdjacentHexes(pointIndex);
+            const hexValues = adjacentHexes.map(hexIndex => {
+                const hex = document.querySelectorAll('.hex-input')[hexIndex];
+                return {
+                    number: hex.querySelector('.number').value,
+                    resource: hex.querySelector('.resource').value
+                };
+            });
+            return JSON.stringify(hexValues);
         }
 
         BOARD.addEventListener('click', (e) => {
@@ -427,18 +457,6 @@
                 selectPoint(pointIndex);
             }
         });
-
-        function initializeBoard() {
-            try {
-                createHexBoard();
-                addSettlementPoints();
-                document.getElementById('versionNumber').textContent = CONFIG.VERSION;
-            } catch (error) {
-                console.error('Failed to initialize board:', error);
-                // Show user-friendly error message
-                RESOURCE_DIST.innerHTML = '<p class="error">Failed to load board. Please refresh the page.</p>';
-            }
-        }
 
         function validateBoardState() {
             const hexInputs = document.querySelectorAll('.hex-input');
