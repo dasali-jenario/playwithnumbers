@@ -27,9 +27,8 @@
             width: min(90vw, 800px);
             aspect-ratio: 1.2;
             margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 0;
+            padding: 40px;
+            box-sizing: border-box;
         }
 
         .hex-row {
@@ -76,8 +75,8 @@
         }
 
         .point {
-            width: min(20px, 3vw);
-            height: min(20px, 3vw);
+            width: 12px;
+            height: 12px;
             background-color: #fff;
             border: 2px solid #666;
             border-radius: 50%;
@@ -89,13 +88,13 @@
 
         .point:hover {
             background-color: #f0f0f0;
-            transform: scale(1.2);
+            transform: translate(-50%, -50%) scale(1.3);
         }
 
         .point.selected {
             background-color: #e0e0e0;
             border-color: #000;
-            transform: scale(1.2);
+            transform: translate(-50%, -50%) scale(1.3);
         }
 
         .resource-distribution {
@@ -106,7 +105,7 @@
     </style>
 </head>
 <body>
-    <h1>Catan Settlement Probability Calculator a</h1>
+    <h1>Catan Settlement Probability Calculator o</h1>
     
     <div class="instructions">
         <h2>How to use:</h2>
@@ -176,25 +175,26 @@
         function addSettlementPoints() {
             const board = document.querySelector('.board-setup');
             const boardRect = board.getBoundingClientRect();
-            const width = boardRect.width;
-            const height = boardRect.height;
             
             // Define exact positions for all points as percentages
             const positions = [
-                // Top row (4 points)
-                {x: 35, y: 5}, {x: 45, y: 5}, {x: 55, y: 5}, {x: 65, y: 5},
+                // Row 1 (top) - 7 points
+                {x: 25, y: 5}, {x: 35, y: 5}, {x: 45, y: 5}, {x: 55, y: 5}, {x: 65, y: 5}, {x: 75, y: 5}, {x: 85, y: 5},
                 
-                // Second row (5 points)
-                {x: 30, y: 20}, {x: 40, y: 20}, {x: 50, y: 20}, {x: 60, y: 20}, {x: 70, y: 20},
+                // Row 2 - 9 points
+                {x: 15, y: 20}, {x: 25, y: 20}, {x: 35, y: 20}, {x: 45, y: 20}, {x: 55, y: 20}, {x: 65, y: 20}, {x: 75, y: 20}, {x: 85, y: 20}, {x: 95, y: 20},
                 
-                // Middle row (6 points)
-                {x: 25, y: 35}, {x: 35, y: 35}, {x: 45, y: 35}, {x: 55, y: 35}, {x: 65, y: 35}, {x: 75, y: 35},
+                // Row 3 - 11 points
+                {x: 5, y: 35}, {x: 15, y: 35}, {x: 25, y: 35}, {x: 35, y: 35}, {x: 45, y: 35}, {x: 55, y: 35}, {x: 65, y: 35}, {x: 75, y: 35}, {x: 85, y: 35}, {x: 95, y: 35}, {x: 105, y: 35},
                 
-                // Fourth row (5 points)
-                {x: 30, y: 50}, {x: 40, y: 50}, {x: 50, y: 50}, {x: 60, y: 50}, {x: 70, y: 50},
+                // Row 4 - 9 points
+                {x: 15, y: 50}, {x: 25, y: 50}, {x: 35, y: 50}, {x: 45, y: 50}, {x: 55, y: 50}, {x: 65, y: 50}, {x: 75, y: 50}, {x: 85, y: 50}, {x: 95, y: 50},
                 
-                // Bottom row (4 points)
-                {x: 35, y: 65}, {x: 45, y: 65}, {x: 55, y: 65}, {x: 65, y: 65}
+                // Row 5 - 7 points
+                {x: 25, y: 65}, {x: 35, y: 65}, {x: 45, y: 65}, {x: 55, y: 65}, {x: 65, y: 65}, {x: 75, y: 65}, {x: 85, y: 65},
+                
+                // Row 6 (bottom) - 5 points
+                {x: 35, y: 80}, {x: 45, y: 80}, {x: 55, y: 80}, {x: 65, y: 80}, {x: 75, y: 80}
             ];
 
             // Clear existing points
@@ -236,20 +236,32 @@
             const adjacencyMap = {};
             
             // Maps each point to its adjacent hexes based on the Catan board layout
+            // First number in each array is the point index, followed by the hex indices it touches
             const adjacencies = [
-                // Top row points (0-3)
-                [0,1], [0,1,2], [1,2,3], [2,3],
-                // Second row points (4-8)
-                [0,4], [0,1,4], [1,2,5], [2,3,5], [3,6],
-                // Middle row points (9-14)
-                [4,7], [4,5,7], [5,7,8], [5,6,8], [6,8,9], [6,9],
-                // Fourth row points (15-19)
-                [7,10], [7,8,10], [8,9,11], [9,11,12], [9,12],
-                // Bottom row points (20-23)
-                [10,13], [10,11,13], [11,12,14], [12,14]
+                // Row 1 points (0-6)
+                [0, [0]], [1, [0]], [2, [0,1]], [3, [1]], [4, [1,2]], [5, [2]], [6, [2]],
+                
+                // Row 2 points (7-15)
+                [7, [0,3]], [8, [0,3]], [9, [0,1,3,4]], [10, [1,4]], [11, [1,2,4,5]], 
+                [12, [2,5]], [13, [2,5,6]], [14, [2,6]], [15, [6]],
+                
+                // Row 3 points (16-26)
+                [16, [3]], [17, [3]], [18, [3,4,7,8]], [19, [4,8]], [20, [4,5,8,9]], 
+                [21, [5,9]], [22, [5,6,9,10]], [23, [6,10]], [24, [6,10,11]], [25, [11]], [26, [11]],
+                
+                // Row 4 points (27-35)
+                [27, [7,12]], [28, [7,12]], [29, [7,8,12,13]], [30, [8,13]], [31, [8,9,13,14]], 
+                [32, [9,14]], [33, [9,10,14,15]], [34, [10,15]], [35, [10,11,15,16]],
+                
+                // Row 5 points (36-42)
+                [36, [12]], [37, [12,13]], [38, [13]], [39, [13,14]], [40, [14]], 
+                [41, [14,15]], [42, [15]],
+                
+                // Row 6 points (43-47)
+                [43, [12,17]], [44, [13,17,18]], [45, [14,18]], [46, [15,18,19]], [47, [16,19]]
             ];
             
-            adjacencies.forEach((hexIndices, pointIndex) => {
+            adjacencies.forEach(([pointIndex, hexIndices]) => {
                 adjacencyMap[pointIndex] = hexIndices;
             });
             
