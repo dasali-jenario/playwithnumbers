@@ -25,7 +25,6 @@
         .board-setup {
             position: relative;
             width: min(90vw, 800px);
-            aspect-ratio: 1.2;
             margin: 0 auto;
             padding: 40px;
             box-sizing: border-box;
@@ -35,24 +34,25 @@
             display: flex;
             justify-content: center;
             position: relative;
-            height: 120px;
-            margin-top: -30px; /* Overlap rows */
+            height: 140px;
+            margin-top: -35px; /* Adjust overlap */
         }
 
         .hex-row:first-child {
             margin-top: 0;
         }
 
-        .hex-row:nth-child(1) { width: 60%; margin-left: auto; margin-right: auto; } /* 3 hexes */
-        .hex-row:nth-child(2) { width: 80%; margin-left: auto; margin-right: auto; } /* 4 hexes */
-        .hex-row:nth-child(3) { width: 100%; margin-left: auto; margin-right: auto; } /* 5 hexes */
-        .hex-row:nth-child(4) { width: 80%; margin-left: auto; margin-right: auto; } /* 4 hexes */
-        .hex-row:nth-child(5) { width: 60%; margin-left: auto; margin-right: auto; } /* 3 hexes */
+        /* Adjust row offsets */
+        .hex-row:nth-child(1) { transform: translateX(0); }     /* 3 hexes */
+        .hex-row:nth-child(2) { transform: translateX(-30px); } /* 4 hexes */
+        .hex-row:nth-child(3) { transform: translateX(-60px); } /* 5 hexes */
+        .hex-row:nth-child(4) { transform: translateX(-30px); } /* 4 hexes */
+        .hex-row:nth-child(5) { transform: translateX(0); }     /* 3 hexes */
 
         .hex-input {
             width: 120px;
             height: 140px;
-            margin: 0 -10px;
+            margin: 0 2px; /* Add small gap between hexes */
             padding: 10px;
             background-color: #f9f9f9;
             clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
@@ -207,35 +207,71 @@
         }
 
         function addSettlementPoints() {
-            requestAnimationFrame(() => {
-                const hexInputs = document.querySelectorAll('.hex-input');
-                const boardRect = BOARD.getBoundingClientRect();
-                const fragment = document.createDocumentFragment();
-                const addedPositions = new Set();
+            const board = document.querySelector('.board-setup');
+            const hexInputs = document.querySelectorAll('.hex-input');
+            const boardRect = board.getBoundingClientRect();
+            
+            // Clear existing points
+            document.querySelectorAll('.point').forEach(p => p.remove());
+            
+            // Define point offsets relative to hex center
+            const pointOffsets = [
+                [-60, -70],  // Top-left
+                [60, -70],   // Top-right
+                [120, 0],    // Right
+                [60, 70],    // Bottom-right
+                [-60, 70],   // Bottom-left
+                [-120, 0],   // Left
+            ];
 
-                hexInputs.forEach(hex => {
-                    const hexRect = hex.getBoundingClientRect();
-                    pointOffsets.forEach(([dx, dy]) => {
-                        const x = hexRect.left - boardRect.left + hexRect.width / 2 + dx;
-                        const y = hexRect.top - boardRect.top + hexRect.height / 2 + dy;
-                        const posKey = `${Math.round(x)},${Math.round(y)}`;
+            // Track added points to prevent duplicates
+            const addedPoints = new Set();
 
-                        if (!addedPositions.has(posKey)) {
-                            const point = createPoint(x, y);
-                            fragment.appendChild(point);
-                            addedPositions.add(posKey);
-                        }
-                    });
+            hexInputs.forEach((hex) => {
+                const hexRect = hex.getBoundingClientRect();
+                const hexCenterX = hexRect.left + hexRect.width / 2 - boardRect.left;
+                const hexCenterY = hexRect.top + hexRect.height / 2 - boardRect.top;
+
+                pointOffsets.forEach(([dx, dy]) => {
+                    const x = Math.round(hexCenterX + dx);
+                    const y = Math.round(hexCenterY + dy);
+                    const pointKey = `${x},${y}`;
+
+                    if (!addedPoints.has(pointKey)) {
+                        const point = document.createElement('div');
+                        point.className = 'point';
+                        point.style.left = `${x}px`;
+                        point.style.top = `${y}px`;
+                        point.onclick = () => selectPoint(addedPoints.size);
+                        board.appendChild(point);
+                        addedPoints.add(pointKey);
+                    }
                 });
-
-                const oldPoints = BOARD.querySelectorAll('.point');
-                oldPoints.forEach(p => p.remove());
-                BOARD.appendChild(fragment);
             });
         }
 
-        window.addEventListener('load', addSettlementPoints);
-        window.addEventListener('resize', debounce(addSettlementPoints, 100));
+        // Add this helper function to get hex HTML
+        function getHexHTML(index) {
+            return `
+                <select class="resource" onchange="updateProbabilities()">
+                    ${resources.map(r => `<option value="${r}">${r}</option>`).join('')}
+                </select>
+                <select class="number" onchange="updateProbabilities()">
+                    ${numbers.map(n => `<option value="${n}">${n}</option>`).join('')}
+                </select>
+                <div>Hex ${index + 1}</div>
+            `;
+        }
+
+        // Update the initialization
+        window.addEventListener('load', () => {
+            createHexBoard();
+            setTimeout(addSettlementPoints, 100); // Give time for layout to settle
+        });
+
+        window.addEventListener('resize', debounce(() => {
+            addSettlementPoints();
+        }, 100));
 
         function generateRandomBoard() {
             memoizedProbabilities.clear();
