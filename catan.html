@@ -105,8 +105,12 @@
     </style>
 </head>
 <body>
-    <h1>Catan Settlement Probability Calculator o</h1>
+    <h1>Catan Settlement Probability Calculator</h1>
     
+    <div style="text-align: right; padding: 10px; color: #666;">
+        Version: <span id="versionNumber"></span>
+    </div>
+
     <div class="instructions">
         <h2>How to use:</h2>
         <ol>
@@ -179,22 +183,22 @@
             // Define exact positions for all points as percentages
             const positions = [
                 // Row 1 (top) - 7 points
-                {x: 25, y: 5}, {x: 35, y: 5}, {x: 45, y: 5}, {x: 55, y: 5}, {x: 65, y: 5}, {x: 75, y: 5}, {x: 85, y: 5},
+                {x: 20, y: 12}, {x: 30, y: 12}, {x: 40, y: 12}, {x: 50, y: 12}, {x: 60, y: 12}, {x: 70, y: 12}, {x: 80, y: 12},
                 
                 // Row 2 - 9 points
-                {x: 15, y: 20}, {x: 25, y: 20}, {x: 35, y: 20}, {x: 45, y: 20}, {x: 55, y: 20}, {x: 65, y: 20}, {x: 75, y: 20}, {x: 85, y: 20}, {x: 95, y: 20},
+                {x: 10, y: 28}, {x: 20, y: 28}, {x: 30, y: 28}, {x: 40, y: 28}, {x: 50, y: 28}, {x: 60, y: 28}, {x: 70, y: 28}, {x: 80, y: 28}, {x: 90, y: 28},
                 
                 // Row 3 - 11 points
-                {x: 5, y: 35}, {x: 15, y: 35}, {x: 25, y: 35}, {x: 35, y: 35}, {x: 45, y: 35}, {x: 55, y: 35}, {x: 65, y: 35}, {x: 75, y: 35}, {x: 85, y: 35}, {x: 95, y: 35}, {x: 105, y: 35},
+                {x: 0, y: 44}, {x: 10, y: 44}, {x: 20, y: 44}, {x: 30, y: 44}, {x: 40, y: 44}, {x: 50, y: 44}, {x: 60, y: 44}, {x: 70, y: 44}, {x: 80, y: 44}, {x: 90, y: 44}, {x: 100, y: 44},
                 
                 // Row 4 - 9 points
-                {x: 15, y: 50}, {x: 25, y: 50}, {x: 35, y: 50}, {x: 45, y: 50}, {x: 55, y: 50}, {x: 65, y: 50}, {x: 75, y: 50}, {x: 85, y: 50}, {x: 95, y: 50},
+                {x: 10, y: 60}, {x: 20, y: 60}, {x: 30, y: 60}, {x: 40, y: 60}, {x: 50, y: 60}, {x: 60, y: 60}, {x: 70, y: 60}, {x: 80, y: 60}, {x: 90, y: 60},
                 
                 // Row 5 - 7 points
-                {x: 25, y: 65}, {x: 35, y: 65}, {x: 45, y: 65}, {x: 55, y: 65}, {x: 65, y: 65}, {x: 75, y: 65}, {x: 85, y: 65},
+                {x: 20, y: 76}, {x: 30, y: 76}, {x: 40, y: 76}, {x: 50, y: 76}, {x: 60, y: 76}, {x: 70, y: 76}, {x: 80, y: 76},
                 
                 // Row 6 (bottom) - 5 points
-                {x: 35, y: 80}, {x: 45, y: 80}, {x: 55, y: 80}, {x: 65, y: 80}, {x: 75, y: 80}
+                {x: 30, y: 92}, {x: 40, y: 92}, {x: 50, y: 92}, {x: 60, y: 92}, {x: 70, y: 92}
             ];
 
             // Clear existing points
@@ -408,6 +412,10 @@
 
         // Initialize the adjacency map
         const pointAdjacency = createPointAdjacencyMap();
+
+        // Generate random version number
+        const versionNumber = Math.floor(Math.random() * 9000 + 1000);
+        document.getElementById('versionNumber').textContent = versionNumber;
     </script>
 </body>
 </html>
