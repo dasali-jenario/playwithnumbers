@@ -16,19 +16,23 @@
             display: flex;
             justify-content: center;
             margin: 40px 0;
+            padding: 20px;
+            overflow: visible;
         }
 
         .board-setup {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
+            gap: 0;
             position: relative;
+            margin-top: 20px;
         }
 
         .hex-row {
             display: flex;
-            gap: 10px;
+            gap: 0;
+            margin-bottom: -35px;
         }
 
         .hex-input {
@@ -42,6 +46,7 @@
             align-items: center;
             justify-content: center;
             position: relative;
+            margin: 0 -1px;
         }
 
         .hex-input select {
@@ -59,15 +64,18 @@
             position: absolute;
             cursor: pointer;
             z-index: 2;
+            transition: all 0.2s ease;
         }
 
         .point:hover {
             background-color: #f0f0f0;
+            transform: scale(1.2);
         }
 
         .point.selected {
             background-color: #e0e0e0;
             border-color: #000;
+            transform: scale(1.2);
         }
 
         .resource-distribution {
@@ -140,38 +148,64 @@
         function addSettlementPoints() {
             const hexSize = 140; // height of hex
             const hexWidth = 120;
-            const verticalSpacing = hexSize * 0.75;
+            const verticalSpacing = hexSize * 0.75; // Space between rows
+            const pointSize = 20; // Width/height of the settlement point
+            const pointOffset = pointSize / 2;
             
             let pointCounter = 0;
+            let yOffset = 0; // Starting Y position
             
-            // Add points for each row
-            rowStructure.forEach((hexCount, rowIndex) => {
-                const rowOffset = (5 - hexCount) * (hexWidth / 2);
+            // Add points for each row of intersections
+            for (let rowIndex = 0; rowIndex <= rowStructure.length; rowIndex++) {
+                // Get the number of hexes in this row (or previous row if we're on a vertex row)
+                const hexCount = rowIndex === rowStructure.length ? rowStructure[rowIndex - 1] : rowStructure[rowIndex];
                 
-                // Add top points for each hex
+                // Calculate the x-offset for this row to center it
+                const maxHexes = 5; // Maximum hexes in any row
+                const rowOffset = ((maxHexes - hexCount) * hexWidth) / 2;
+                
+                // Add points for this row
                 for (let i = 0; i <= hexCount; i++) {
                     const point = document.createElement('div');
                     point.className = 'point';
-                    point.style.left = `${rowOffset + i * hexWidth - 10}px`;
-                    point.style.top = `${rowIndex * verticalSpacing - 10}px`;
+                    
+                    // Calculate x position
+                    const xPos = rowOffset + (i * hexWidth) - pointOffset;
+                    
+                    // Calculate y position
+                    const yPos = rowIndex * (verticalSpacing) - pointOffset;
+                    
+                    point.style.left = `${xPos}px`;
+                    point.style.top = `${yPos}px`;
                     point.onclick = () => selectPoint(pointCounter);
                     boardSetup.appendChild(point);
                     pointCounter++;
                 }
-
-                // Add bottom points for each hex (except last row)
+                
+                // Add intermediate points (except for the last row)
                 if (rowIndex < rowStructure.length - 1) {
-                    for (let i = 0; i < hexCount; i++) {
+                    const currentHexCount = rowStructure[rowIndex];
+                    const nextHexCount = rowStructure[rowIndex + 1];
+                    const minCount = Math.min(currentHexCount, nextHexCount);
+                    
+                    const intermediateRowOffset = ((maxHexes - Math.max(currentHexCount, nextHexCount)) * hexWidth) / 2;
+                    
+                    for (let i = 0; i < minCount; i++) {
                         const point = document.createElement('div');
                         point.className = 'point';
-                        point.style.left = `${rowOffset + i * hexWidth + (hexWidth / 2) - 10}px`;
-                        point.style.top = `${rowIndex * verticalSpacing + (verticalSpacing / 2) - 10}px`;
+                        
+                        // Position intermediate points
+                        const xPos = intermediateRowOffset + (i * hexWidth) + (hexWidth / 2) - pointOffset;
+                        const yPos = (rowIndex * verticalSpacing) + (verticalSpacing / 2) - pointOffset;
+                        
+                        point.style.left = `${xPos}px`;
+                        point.style.top = `${yPos}px`;
                         point.onclick = () => selectPoint(pointCounter);
                         boardSetup.appendChild(point);
                         pointCounter++;
                     }
                 }
-            });
+            }
         }
 
         addSettlementPoints();
