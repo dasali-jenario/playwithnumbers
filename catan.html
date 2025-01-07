@@ -53,7 +53,7 @@
         .hex-input {
             width: 120px;
             height: 140px;
-            margin: 0 2px; /* Add small gap between hexes */
+            margin: 0;
             padding: 10px;
             background-color: #f9f9f9;
             clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
@@ -84,19 +84,18 @@
             cursor: pointer;
             z-index: 3;
             transition: all 0.2s ease;
-            transform: translate3d(-50%, -50%, 0);
-            will-change: transform;
+            transform: translate(-50%, -50%);
         }
 
         .point:hover {
             background-color: #f0f0f0;
-            transform: translate3d(-50%, -50%, 0) scale(1.3);
+            transform: translate(-50%, -50%) scale(1.3);
         }
 
         .point.selected {
             background-color: #e0e0e0;
             border-color: #000;
-            transform: translate3d(-50%, -50%, 0) scale(1.3);
+            transform: translate(-50%, -50%) scale(1.3);
         }
 
         .resource-distribution {
@@ -107,7 +106,7 @@
     </style>
 </head>
 <body>
-    <h1>Catan Settlement Probability Calculator a</h1>
+    <h1>Catan Settlement Probability Calculator dd</h1>
 
     <div style="text-align: right; padding: 10px; color: #666;">
         Version: <span id="versionNumber"></span>
@@ -242,18 +241,22 @@
             // Clear existing points
             document.querySelectorAll('.point').forEach(p => p.remove());
             
-            // Define point offsets relative to hex center
+            // Define point offsets relative to hex center (adjusted for hex geometry)
+            const hexWidth = 120;
+            const hexHeight = 140;
             const pointOffsets = [
-                [-60, -70],  // Top-left
-                [60, -70],   // Top-right
-                [120, 0],    // Right
-                [60, 70],    // Bottom-right
-                [-60, 70],   // Bottom-left
-                [-120, 0],   // Left
+                // Calculate exact corner positions using hex geometry
+                [0, -hexHeight/2],           // Top
+                [hexWidth/2, -hexHeight/4],  // Top-right
+                [hexWidth/2, hexHeight/4],   // Bottom-right
+                [0, hexHeight/2],            // Bottom
+                [-hexWidth/2, hexHeight/4],  // Bottom-left
+                [-hexWidth/2, -hexHeight/4]  // Top-left
             ];
 
-            // Track added points to prevent duplicates
+            // Track added points to prevent duplicates (with some tolerance)
             const addedPoints = new Set();
+            const tolerance = 5; // Pixels of tolerance for duplicate detection
 
             hexInputs.forEach((hex) => {
                 const hexRect = hex.getBoundingClientRect();
@@ -263,16 +266,21 @@
                 pointOffsets.forEach(([dx, dy]) => {
                     const x = Math.round(hexCenterX + dx);
                     const y = Math.round(hexCenterY + dy);
-                    const pointKey = `${x},${y}`;
+                    
+                    // Check for nearby points before adding
+                    const nearbyPoint = Array.from(addedPoints).some(point => {
+                        const [px, py] = point.split(',').map(Number);
+                        return Math.abs(px - x) < tolerance && Math.abs(py - y) < tolerance;
+                    });
 
-                    if (!addedPoints.has(pointKey)) {
+                    if (!nearbyPoint) {
                         const point = document.createElement('div');
                         point.className = 'point';
                         point.style.left = `${x}px`;
                         point.style.top = `${y}px`;
                         point.onclick = () => selectPoint(addedPoints.size);
                         board.appendChild(point);
-                        addedPoints.add(pointKey);
+                        addedPoints.add(`${x},${y}`);
                     }
                 });
             });
